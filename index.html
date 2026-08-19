@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VSD Event Checklist</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --cream:#FBF6EA;
+    --paper:#FFFDF8;
+    --ink:#2C1B10;
+    --marigold:#E29317;
+    --marigold-dark:#B9720C;
+    --maroon:#7A1E2B;
+    --line:#E7DCC5;
+    --done:#3E7A4B;
+    --pending:#B9720C;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--cream); color:var(--ink); min-height:100vh;
+  }
+  header{
+    background:var(--maroon); color:var(--paper); padding:18px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:10;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  header .brand{display:flex; align-items:center; gap:10px;}
+  header .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--marigold);}
+  header h1{font-size:17px; margin:0; font-weight:700; letter-spacing:.2px;}
+  header .sub{font-size:12px; opacity:.75; margin-top:2px;}
+  header button{
+    background:transparent; border:1px solid rgba(255,255,255,.4); color:var(--paper);
+    padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer;
+  }
+  main{max-width:640px; margin:0 auto; padding:20px 16px 60px;}
+  .card{
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; margin-bottom:16px; box-shadow:0 1px 3px rgba(60,30,10,.05);
+  }
+  .card h2{margin:0 0 4px; font-size:16px; color:var(--maroon);}
+  .card .meta{font-size:12px; color:#8a7a5f; margin-bottom:12px;}
+  label{display:block; font-size:12px; font-weight:600; color:#6b5a3e; margin:10px 0 4px;}
+  input[type=text], input[type=email], input[type=date], textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    font-size:14px; background:#fff; color:var(--ink); font-family:inherit;
+  }
+  textarea{min-height:60px; resize:vertical;}
+  .btn{
+    display:inline-block; background:var(--marigold); color:#fff; border:none;
+    padding:10px 16px; border-radius:10px; font-size:14px; font-weight:600;
+    cursor:pointer; margin-top:10px;
+  }
+  .btn:hover{background:var(--marigold-dark);}
+  .btn.secondary{background:transparent; color:var(--maroon); border:1px solid var(--maroon);}
+  .btn.small{padding:6px 10px; font-size:12px; margin-top:0;}
+  .row{display:flex; gap:8px; flex-wrap:wrap;}
+  .checklist-item{
+    border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:#fff;
+  }
+  .checklist-item.done{border-color:var(--done); background:#F3FAF4;}
+  .checklist-item .top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .checklist-item .label{font-size:14px; font-weight:600; flex:1;}
+  .status-pill{
+    font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;
+    cursor:pointer; border:none;
+  }
+  .status-pill.pending{background:#FCEFDA; color:var(--pending);}
+  .status-pill.done{background:#E1F2E4; color:var(--done);}
+  .checklist-item details{margin-top:8px;}
+  .checklist-item summary{font-size:12px; color:#8a7a5f; cursor:pointer;}
+  .photo-preview{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
+  .progress-bar{height:6px; background:var(--line); border-radius:4px; overflow:hidden; margin-top:6px;}
+  .progress-bar > div{height:100%; background:var(--marigold);}
+  .grid-table{width:100%; border-collapse:collapse; font-size:12px;}
+  .grid-table th, .grid-table td{border:1px solid var(--line); padding:6px 8px; text-align:center;}
+  .grid-table th{background:#FBF3E2; font-size:11px;}
+  .grid-table td.name{text-align:left; font-weight:600;}
+  .tag-done{color:var(--done); font-weight:700;}
+  .tag-pending{color:var(--pending);}
+  .muted{color:#8a7a5f; font-size:13px;}
+  .center{text-align:center;}
+  .hidden{display:none !important;}
+  .tab-bar{display:flex; gap:8px; margin-bottom:16px;}
+  .tab-bar button{
+    flex:1; padding:8px; border-radius:10px; border:1px solid var(--line); background:#fff;
+    font-size:13px; cursor:pointer; font-weight:600; color:#8a7a5f;
+  }
+  .tab-bar button.active{background:var(--maroon); color:#fff; border-color:var(--maroon);}
+  #loginScreen{display:flex; align-items:center; justify-content:center; min-height:80vh; padding:20px;}
+  #loginScreen .card{width:100%; max-width:360px; text-align:center;}
+  .flame{font-size:34px; margin-bottom:6px;}
+  .msg{font-size:13px; padding:10px 12px; border-radius:8px; margin-top:10px;}
+  .msg.ok{background:#E1F2E4; color:var(--done);}
+  .msg.err{background:#FBE4E4; color:#A02B2B;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="card">
+    <div class="flame">🪔</div>
+    <h2>VSD Event Checklist</h2>
+    <p class="muted">Enter your email to receive a sign-in link.</p>
+    <input type="email" id="loginEmail" placeholder="you@example.com" />
+    <button class="btn" style="width:100%" onclick="sendMagicLink()">Send sign-in link</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>VSD Event Checklist</h1>
+        <div class="sub" id="whoami"></div>
+      </div>
+    </div>
+    <button onclick="signOut()">Sign out</button>
+  </header>
+  <main id="mainContent"></main>
+</div>
+
+<script>
+// ============================================================
+// CONFIG — fill these in after creating your Supabase project
+// Dashboard → Project Settings → API
+// ============================================================
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+// Using a custom Postgres schema ("vsd") instead of the default "public".
+// It must also be added under Project Settings → API → Exposed schemas (see SETUP.md).
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  db: { schema: 'vsd' }
+});
+
+let currentUser = null;
+let isAdmin = false;
+
+// ---------- AUTH ----------
+async function sendMagicLink(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const msgEl = document.getElementById('loginMsg');
+  if(!email){ msgEl.innerHTML = '<div class="msg err">Enter an email address.</div>'; return; }
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  if(error){
+    msgEl.innerHTML = `<div class="msg err">${error.message}</div>`;
+  } else {
+    msgEl.innerHTML = '<div class="msg ok">Link sent. Check your email (and spam folder) and open it on this device.</div>';
+  }
+}
+
+async function signOut(){
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+async function initAuth(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){
+    await onLoggedIn(session.user);
+  }
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(session && !currentUser){
+      await onLoggedIn(session.user);
+    }
+  });
+}
+
+async function onLoggedIn(user){
+  currentUser = user;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('whoami').textContent = user.email;
+
+  const { data: adminRow } = await sb.from('admins').select('email').eq('email', user.email).maybeSingle();
+  isAdmin = !!adminRow;
+
+  if(isAdmin){ renderAdmin(); } else { renderIncharge(); }
+}
+
+// ============================================================
+// INCHARGE VIEW
+// ============================================================
+async function renderIncharge(){
+  const main = document.getElementById('mainContent');
+  main.innerHTML = '<p class="muted">Loading your area...</p>';
+
+  const { data: assignments, error } = await sb
+    .from('area_assignment')
+    .select('id, incharge_name, helper_names, area:area_id(id, area_name, temple_list, event_id, event:event_id(name, event_date))')
+    .eq('incharge_email', currentUser.email);
+
+  if(error || !assignments || assignments.length === 0){
+    main.innerHTML = '<div class="card"><p class="muted">No area is assigned to your email yet. Please check with the admin.</p></div>';
+    return;
+  }
+
+  main.innerHTML = '';
+  for(const a of assignments){
+    const areaCard = document.createElement('div');
+    areaCard.className = 'card';
+    areaCard.innerHTML = `
+      <h2>${a.area.area_name}</h2>
+      <div class="meta">${a.area.event.name} · ${a.area.event.event_date} · Temples: ${a.area.temple_list || '-'}</div>
+      <div class="meta">Incharge: ${a.incharge_name}${a.helper_names ? ' · Helpers: ' + a.helper_names : ''}</div>
+      <div class="progress-bar"><div id="prog-${a.area.id}" style="width:0%"></div></div>
+      <div id="checklist-${a.area.id}" style="margin-top:14px;"></div>
+    `;
+    main.appendChild(areaCard);
+    await loadChecklistForArea(a.area.id, a.area.event_id);
+  }
+}
+
+async function loadChecklistForArea(areaId, eventId){
+  const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', eventId).order('sort_order');
+  const { data: statuses } = await sb.from('area_checklist_status').select('*').eq('area_id', areaId);
+
+  const statusMap = {};
+  (statuses || []).forEach(s => statusMap[s.checklist_item_id] = s);
+
+  const container = document.getElementById(`checklist-${areaId}`);
+  container.innerHTML = '';
+  let doneCount = 0;
+
+  (items || []).forEach(item => {
+    const st = statusMap[item.id] || { status: 'Pending', comment: '', photo_url: null };
+    if(st.status === 'Done') doneCount++;
+
+    const div = document.createElement('div');
+    div.className = 'checklist-item' + (st.status === 'Done' ? ' done' : '');
+    div.innerHTML = `
+      <div class="top">
+        <div class="label">${item.label}</div>
+        <button class="status-pill ${st.status === 'Done' ? 'done' : 'pending'}"
+          onclick="toggleStatus('${areaId}','${item.id}','${st.status}')">
+          ${st.status === 'Done' ? '✓ Done' : 'Pending'}
+        </button>
+      </div>
+      <details ${st.comment || st.photo_url ? 'open' : ''}>
+        <summary>Add comment / photo</summary>
+        <label>Comment</label>
+        <textarea id="comment-${areaId}-${item.id}" placeholder="e.g. Waiting for pujari confirmation">${st.comment || ''}</textarea>
+        <label>Photo (aangi / activity)</label>
+        <input type="file" accept="image/*" id="file-${areaId}-${item.id}" />
+        ${st.photo_url ? `<img class="photo-preview" src="${st.photo_url}" />` : ''}
+        <div class="row">
+          <button class="btn small" onclick="saveDetails('${areaId}','${item.id}')">Save</button>
+        </div>
+      </details>
+    `;
+    container.appendChild(div);
+  });
+
+  const pct = items && items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const bar = document.getElementById(`prog-${areaId}`);
+  if(bar) bar.style.width = pct + '%';
+}
+
+async function toggleStatus(areaId, itemId, currentStatus){
+  const newStatus = currentStatus === 'Done' ? 'Pending' : 'Done';
+  await sb.from('area_checklist_status').upsert({
+    area_id: areaId,
+    checklist_item_id: itemId,
+    status: newStatus,
+    updated_by: currentUser.email,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'area_id,checklist_item_id' });
+
+  const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
+  await loadChecklistForArea(areaId, areaRow.event_id);
+}
+
+async function saveDetails(areaId, itemId){
+  const comment = document.getElementById(`comment-${areaId}-${itemId}`).value;
+  const fileInput = document.getElementById(`file-${areaId}-${itemId}`);
+  let photo_url = null;
+
+  if(fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    const path = `${areaId}/${itemId}-${Date.now()}-${file.name}`;
+    const { error: upErr } = await sb.storage.from('event-photos').upload(path, file);
+    if(!upErr){
+      const { data: pub } = sb.storage.from('event-photos').getPublicUrl(path);
+      photo_url = pub.publicUrl;
+    }
+  }
+
+  const updatePayload = {
+    area_id: areaId,
+    checklist_item_id: itemId,
+    comment,
+    updated_by: currentUser.email,
+    updated_at: new Date().toISOString()
+  };
+  if(photo_url) updatePayload.photo_url = photo_url;
+
+  const { data: existing } = await sb.from('area_checklist_status').select('status').eq('area_id', areaId).eq('checklist_item_id', itemId).maybeSingle();
+  if(!existing) updatePayload.status = 'Pending';
+
+  await sb.from('area_checklist_status').upsert(updatePayload, { onConflict: 'area_id,checklist_item_id' });
+
+  const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
+  await loadChecklistForArea(areaId, areaRow.event_id);
+}
+
+// ============================================================
+// ADMIN VIEW
+// ============================================================
+let adminActiveEventId = null;
+
+async function renderAdmin(){
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div class="tab-bar">
+      <button id="tabSetup" class="active" onclick="showAdminTab('setup')">Setup</button>
+      <button id="tabOverview" onclick="showAdminTab('overview')">Overview</button>
+    </div>
+    <div id="adminTabContent"></div>
+  `;
+  await showAdminTab('setup');
+}
+
+async function showAdminTab(tab){
+  document.getElementById('tabSetup').classList.toggle('active', tab === 'setup');
+  document.getElementById('tabOverview').classList.toggle('active', tab === 'overview');
+  if(tab === 'setup') await renderAdminSetup();
+  else await renderAdminOverview();
+}
+
+async function renderAdminSetup(){
+  const el = document.getElementById('adminTabContent');
+  const { data: events } = await sb.from('event').select('*').order('created_at', { ascending: false });
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>Create event</h2>
+      <label>Event name</label>
+      <input type="text" id="newEventName" placeholder="e.g. Karuna Yatra - Flower Parcel Seva" />
+      <label>Event date</label>
+      <input type="date" id="newEventDate" />
+      <button class="btn" onclick="createEvent()">Create event (with default checklist)</button>
+    </div>
+    <div class="card">
+      <h2>Select event</h2>
+      <select id="eventSelect" onchange="onEventSelect(this.value)" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);">
+        <option value="">-- choose event --</option>
+        ${(events||[]).map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})</option>`).join('')}
+      </select>
+    </div>
+    <div id="areaManagement"></div>
+  `;
+
+  if(!adminActiveEventId && events && events.length) adminActiveEventId = events[0].id;
+  if(adminActiveEventId) await renderAreaManagement();
+}
+
+async function createEvent(){
+  const name = document.getElementById('newEventName').value.trim();
+  const date = document.getElementById('newEventDate').value;
+  if(!name || !date){ alert('Enter event name and date'); return; }
+
+  const { data: ev, error } = await sb.from('event').insert({ name, event_date: date }).select().single();
+  if(error){ alert(error.message); return; }
+
+  const defaultChecklist = [
+    "Inform trustee regarding the event",
+    "Sangh na board ma lakhvu (put notice on sangh board)",
+    "Sangh na WhatsApp group ma Friday sudhi msg pahochi jay tem karvu",
+    "Pujari jode advance ma vat kari levi",
+    "Pujari ne kevu — phool chadhya pachi sanje vyavasthit gothvi aangi banavi levi",
+    "Aangi no photo/video male toh try karvu",
+    "Possible hoy toh sadhu-sadhvi Ms ne mali ne event nu pehla thi jaan kari devu",
+    "Dham ni activities nu image avya pachi print kadhi ne Ms sudhi pahochadvu"
+  ];
+  const rows = defaultChecklist.map((label, i) => ({ event_id: ev.id, label, sort_order: i }));
+  await sb.from('checklist_item').insert(rows);
+
+  adminActiveEventId = ev.id;
+  await renderAdminSetup();
+}
+
+async function onEventSelect(eventId){
+  adminActiveEventId = eventId || null;
+  await renderAreaManagement();
+}
+
+async function renderAreaManagement(){
+  const el = document.getElementById('areaManagement');
+  if(!adminActiveEventId){ el.innerHTML = ''; return; }
+
+  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>Add area</h2>
+      <label>Area name</label>
+      <input type="text" id="newAreaName" placeholder="e.g. Zone 3" />
+      <label>Temples in this area</label>
+      <textarea id="newAreaTemples" placeholder="e.g. Temple A, Temple B, Temple C"></textarea>
+      <button class="btn" onclick="createArea()">Add area</button>
+    </div>
+    ${(areas||[]).map(a => `
+      <div class="card">
+        <h2>${a.area_name}</h2>
+        <div class="meta">Temples: ${a.temple_list || '-'}</div>
+        ${a.area_assignment && a.area_assignment.length ? `
+          <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
+          <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
+        ` : `
+          <label>Incharge name</label>
+          <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
+          <label>Incharge email</label>
+          <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
+          <label>Helper names (optional)</label>
+          <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
+          <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
+        `}
+      </div>
+    `).join('')}
+  `;
+}
+
+async function createArea(){
+  const area_name = document.getElementById('newAreaName').value.trim();
+  const temple_list = document.getElementById('newAreaTemples').value.trim();
+  if(!area_name){ alert('Enter area name'); return; }
+  await sb.from('area').insert({ event_id: adminActiveEventId, area_name, temple_list });
+  await renderAreaManagement();
+}
+
+async function assignIncharge(areaId){
+  const incharge_name = document.getElementById(`ic-name-${areaId}`).value.trim();
+  const incharge_email = document.getElementById(`ic-email-${areaId}`).value.trim();
+  const helper_names = document.getElementById(`ic-helpers-${areaId}`).value.trim();
+  if(!incharge_name || !incharge_email){ alert('Enter incharge name and email'); return; }
+  const { data, error } = await sb.from('area_assignment')
+    .insert({ area_id: areaId, incharge_name, incharge_email, helper_names })
+    .select().single();
+  if(error){ alert(error.message); return; }
+  await sendAssignmentEmail(data.id, /*silent*/ false);
+  await renderAreaManagement();
+}
+
+async function sendAssignmentEmail(areaAssignmentId, silent){
+  const { data, error } = await sb.functions.invoke('send-notification', {
+    body: { type: 'TEAM_ASSIGNMENT', area_assignment_id: areaAssignmentId }
+  });
+  if(error){
+    console.error('Email send failed', error);
+    if(!silent) alert('Assignment saved, but the email failed to send. Check the Edge Function logs / Resend setup.');
+  } else if(!silent){
+    alert('Assignment email sent.');
+  }
+  return { data, error };
+}
+
+async function renderAdminOverview(){
+  const el = document.getElementById('adminTabContent');
+  if(!adminActiveEventId){
+    el.innerHTML = '<p class="muted">Select an event in the Setup tab first.</p>';
+    return;
+  }
+
+  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
+  const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).order('sort_order');
+  const { data: statuses } = await sb.from('area_checklist_status').select('*').in('area_id', (areas||[]).map(a=>a.id));
+
+  const statusMap = {};
+  (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
+
+  let html = `<div class="card"><h2>Overview</h2><div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area</th><th>Incharge</th>`;
+  (items||[]).forEach((it,i) => html += `<th title="${it.label}">#${i+1}</th>`);
+  html += `<th>%</th></tr></thead><tbody>`;
+
+  (areas||[]).forEach(a => {
+    const inc = a.area_assignment && a.area_assignment[0] ? a.area_assignment[0].incharge_name : '—';
+    let doneCount = 0;
+    html += `<tr><td class="name">${a.area_name}</td><td>${inc}</td>`;
+    (items||[]).forEach(it => {
+      const s = statusMap[`${a.id}_${it.id}`];
+      const done = s && s.status === 'Done';
+      if(done) doneCount++;
+      html += `<td class="${done ? 'tag-done' : 'tag-pending'}">${done ? '✓' : '·'}</td>`;
+    });
+    const pct = items && items.length ? Math.round((doneCount/items.length)*100) : 0;
+    html += `<td><b>${pct}%</b></td></tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  html += `<p class="muted" style="margin-top:10px;">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}`).join(' · ')}</p>`;
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+// ---------- INIT ----------
+initAuth();
+</script>
+</body>
+</html>
