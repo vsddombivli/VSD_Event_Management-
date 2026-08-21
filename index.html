@@ -3,121 +3,143 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VSD Event Checklist</title>
+<title>VSD Event Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cream:#FBF6EA;
-    --paper:#FFFDF8;
-    --ink:#2C1B10;
-    --marigold:#E29317;
-    --marigold-dark:#B9720C;
-    --maroon:#7A1E2B;
-    --line:#E7DCC5;
-    --done:#3E7A4B;
-    --pending:#B9720C;
-    --partial:#C98A1F;
-    --radius:14px;
+    --bg:#F3F1FB;
+    --surface:#FFFFFF;
+    --ink:#211B36;
+    --muted:#6B6580;
+    --line:#E7E3F5;
+    --purple:#7C3AED;
+    --purple-dark:#5B21B6;
+    --pink:#EC4899;
+    --blue:#2563EB;
+    --red:#EF4444;
+    --amber:#F59E0B;
+    --green:#10B981;
+    --radius:16px;
+    --shadow:0 4px 20px rgba(76,29,149,0.08);
+    --brand:linear-gradient(135deg,#7C3AED 0%,#EC4899 100%);
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:var(--cream); color:var(--ink); min-height:100vh;
+    margin:0; font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh;
   }
   header{
-    background:var(--maroon); color:var(--paper); padding:18px 20px;
+    background:var(--brand); color:#fff; padding:20px 20px;
     display:flex; align-items:center; justify-content:space-between;
     position:sticky; top:0; z-index:10;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    box-shadow:0 4px 24px rgba(124,58,237,.25);
   }
   header .brand{display:flex; align-items:center; gap:10px;}
-  header .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--marigold);}
-  header h1{font-size:17px; margin:0; font-weight:700; letter-spacing:.2px;}
-  header .sub{font-size:12px; opacity:.75; margin-top:2px;}
+  header .brand .dot{width:11px;height:11px;border-radius:50%;background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.25);}
+  header h1{font-size:17px; margin:0; font-weight:800; letter-spacing:.2px;}
+  header .sub{font-size:12px; opacity:.85; margin-top:2px;}
   header button{
-    background:transparent; border:1px solid rgba(255,255,255,.4); color:var(--paper);
-    padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer;
+    background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.4); color:#fff;
+    padding:7px 14px; border-radius:10px; font-size:13px; cursor:pointer; font-weight:600;
   }
-  main{max-width:640px; margin:0 auto; padding:20px 16px 60px;}
+  header button:hover{background:rgba(255,255,255,.28);}
+  main{max-width:680px; margin:0 auto; padding:20px 16px 60px;}
   .card{
-    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
-    padding:18px; margin-bottom:16px; box-shadow:0 1px 3px rgba(60,30,10,.05);
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
   }
-  .card h2{margin:0 0 4px; font-size:16px; color:var(--maroon);}
-  .card .meta{font-size:12px; color:#8a7a5f; margin-bottom:12px;}
-  label{display:block; font-size:12px; font-weight:600; color:#6b5a3e; margin:10px 0 4px;}
-  input[type=text], input[type=email], input[type=date], textarea{
-    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+  .card h2{margin:0 0 4px; font-size:16px; color:var(--ink); font-weight:800;}
+  .card .meta{font-size:12px; color:var(--muted); margin-bottom:12px;}
+  label{display:block; font-size:12px; font-weight:700; color:var(--muted); margin:10px 0 4px;}
+  input[type=text], input[type=email], input[type=date], textarea, select{
+    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px;
     font-size:14px; background:#fff; color:var(--ink); font-family:inherit;
   }
+  input:focus, textarea:focus, select:focus{outline:none; border-color:var(--purple); box-shadow:0 0 0 3px rgba(124,58,237,.12);}
   textarea{min-height:60px; resize:vertical;}
   .btn{
-    display:inline-block; background:var(--marigold); color:#fff; border:none;
-    padding:10px 16px; border-radius:10px; font-size:14px; font-weight:600;
-    cursor:pointer; margin-top:10px;
+    display:inline-block; background:var(--brand); color:#fff; border:none;
+    padding:10px 16px; border-radius:10px; font-size:14px; font-weight:700;
+    cursor:pointer; margin-top:10px; box-shadow:0 2px 10px rgba(124,58,237,.25);
+    transition:transform .12s ease, box-shadow .12s ease;
   }
-  .btn:hover{background:var(--marigold-dark);}
-  .btn.secondary{background:transparent; color:var(--maroon); border:1px solid var(--maroon);}
-  .btn.small{padding:6px 10px; font-size:12px; margin-top:0;}
+  .btn:hover{transform:translateY(-1px); box-shadow:0 4px 14px rgba(124,58,237,.35);}
+  .btn.secondary{background:#fff; color:var(--purple); border:1.5px solid var(--purple); box-shadow:none;}
+  .btn.secondary:hover{background:#F5F0FF; transform:none;}
+  .btn.small{padding:7px 12px; font-size:12px; margin-top:0;}
   .row{display:flex; gap:8px; flex-wrap:wrap;}
   .checklist-item{
-    border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:#fff;
+    border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:#fff;
   }
-  .checklist-item.done{border-color:var(--done); background:#F3FAF4;}
+  .checklist-item.done{border-color:var(--green); background:#ECFDF5;}
+  .checklist-item.partial{border-color:var(--amber); background:#FFFBEB;}
   .checklist-item .top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
-  .checklist-item .label{font-size:14px; font-weight:600; flex:1;}
-  .status-pill{
-    font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;
-    cursor:pointer; border:none;
-  }
-  .status-pill.pending{background:#FCEFDA; color:var(--pending);}
-  .status-pill.done{background:#E1F2E4; color:var(--done);}
+  .checklist-item .label{font-size:14px; font-weight:700; flex:1;}
   .status-select{
-    padding:6px 10px; border-radius:8px; border:1px solid var(--line); font-size:13px;
-    font-weight:600; background:#fff; cursor:pointer;
+    padding:6px 10px; border-radius:20px; border:1.5px solid var(--line); font-size:12px;
+    font-weight:700; background:#fff; cursor:pointer;
   }
-  .status-select.st-done{color:var(--done); border-color:var(--done); background:#F3FAF4;}
-  .status-select.st-partial{color:var(--partial); border-color:var(--partial); background:#FEF7EA;}
-  .status-select.st-notdone{color:#8a7a5f; border-color:var(--line); background:#fff;}
-  .checklist-item.partial{border-color:var(--partial); background:#FEFBF3;}
-  .btn.danger{color:#A02B2B; border:1px solid #A02B2B; background:transparent;}
-  .btn.danger:hover{background:#FBE4E4;}
-  .area-actions{display:flex; gap:8px; margin-bottom:10px;}
+  .status-select.st-done{color:var(--green); border-color:var(--green); background:#ECFDF5;}
+  .status-select.st-partial{color:var(--amber); border-color:var(--amber); background:#FFFBEB;}
+  .status-select.st-notdone{color:var(--muted); border-color:var(--line); background:#fff;}
+  .btn.danger{color:var(--red); border:1.5px solid var(--red); background:#fff; box-shadow:none;}
+  .btn.danger:hover{background:#FEF2F2; transform:none;}
+  .area-actions{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .area-ring{display:flex; align-items:center; flex-shrink:0;}
+  .area-card{border-left:6px solid var(--line);}
   .edit-form{border-top:1px solid var(--line); margin-top:10px; padding-top:10px;}
-  .todo-row{display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .todo-row{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
   .todo-row:last-child{border-bottom:none;}
   .todo-row .todo-label{flex:1;}
-  .todo-row button{background:none; border:none; cursor:pointer; font-size:12px; padding:2px 6px;}
-  .todo-row .edit-icon{color:var(--marigold-dark);}
-  .todo-row .del-icon{color:#A02B2B;}
-  .tag-badge{font-size:10px; background:#EFE7D2; color:#6b5a3e; padding:2px 6px; border-radius:6px; margin-left:6px;}
-  .checklist-item details{margin-top:8px;}
-  .checklist-item summary{font-size:12px; color:#8a7a5f; cursor:pointer;}
-  .photo-preview{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
-  .progress-bar{height:6px; background:var(--line); border-radius:4px; overflow:hidden; margin-top:6px;}
-  .progress-bar > div{height:100%; background:var(--marigold);}
-  .grid-table{width:100%; border-collapse:collapse; font-size:12px;}
-  .grid-table th, .grid-table td{border:1px solid var(--line); padding:6px 8px; text-align:center;}
-  .grid-table th{background:#FBF3E2; font-size:11px;}
-  .grid-table td.name{text-align:left; font-weight:600;}
-  .tag-done{color:var(--done); font-weight:700;}
-  .tag-pending{color:var(--pending);}
-  .tag-partial{color:var(--partial); font-weight:700;}
-  .muted{color:#8a7a5f; font-size:13px;}
+  .todo-row button{background:none; border:none; cursor:pointer; font-size:12px; padding:2px 6px; font-weight:700;}
+  .todo-row .edit-icon{color:var(--purple);}
+  .todo-row .del-icon{color:var(--red);}
+  .tag-badge{font-size:10px; background:#F1EBFF; color:var(--purple-dark); padding:2px 8px; border-radius:20px; margin-left:6px; font-weight:700;}
+  .due-badge{font-size:10px; background:#FEF3C7; color:#92400E; padding:2px 8px; border-radius:20px; margin-left:6px; white-space:nowrap; font-weight:700;}
+  .due-badge.overdue{background:#FEE2E2; color:#B91C1C;}
+  .photo-preview{max-width:100%; border-radius:10px; margin-top:8px; display:block;}
+  .progress-bar{height:8px; background:var(--line); border-radius:6px; overflow:hidden; margin-top:8px;}
+  .progress-bar > div{height:100%; background:var(--brand); border-radius:6px; transition:width .4s ease;}
+  .grid-table{width:100%; border-collapse:separate; border-spacing:0; font-size:12px; background:#fff; border-radius:12px; overflow:hidden;}
+  .grid-table th, .grid-table td{padding:9px 8px; text-align:center; border-bottom:1px solid var(--line);}
+  .grid-table th{background:var(--brand); color:#fff; font-size:11px; font-weight:700;}
+  .grid-table tr:nth-child(even) td{background:#FAF8FF;}
+  .grid-table td.name{text-align:left; font-weight:700;}
+  .chip{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;}
+  .chip.done{background:#D1FAE5; color:#065F46;}
+  .chip.partial{background:#FEF3C7; color:#92400E;}
+  .chip.notdone{background:#EDEBF7; color:#6B6580;}
+  .chip.na{background:transparent; color:#D8D3EE;}
+  .muted{color:var(--muted); font-size:13px;}
   .center{text-align:center;}
   .hidden{display:none !important;}
-  .tab-bar{display:flex; gap:8px; margin-bottom:16px;}
+  .tab-bar{display:flex; gap:4px; margin-bottom:16px; background:#fff; border-radius:14px; padding:4px; box-shadow:var(--shadow);}
   .tab-bar button{
-    flex:1; padding:8px; border-radius:10px; border:1px solid var(--line); background:#fff;
-    font-size:13px; cursor:pointer; font-weight:600; color:#8a7a5f;
+    flex:1; padding:10px; border-radius:10px; border:none; background:transparent;
+    font-size:13px; cursor:pointer; font-weight:700; color:var(--muted);
   }
-  .tab-bar button.active{background:var(--maroon); color:#fff; border-color:var(--maroon);}
-  #loginScreen{display:flex; align-items:center; justify-content:center; min-height:80vh; padding:20px;}
-  #loginScreen .card{width:100%; max-width:360px; text-align:center;}
-  .flame{font-size:34px; margin-bottom:6px;}
-  .msg{font-size:13px; padding:10px 12px; border-radius:8px; margin-top:10px;}
-  .msg.ok{background:#E1F2E4; color:var(--done);}
-  .msg.err{background:#FBE4E4; color:#A02B2B;}
+  .tab-bar button.active{background:var(--brand); color:#fff; box-shadow:0 2px 8px rgba(124,58,237,.3);}
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:12px; margin-bottom:16px;}
+  .kpi-card{border-radius:16px; padding:16px; color:#fff; box-shadow:var(--shadow);}
+  .kpi-card .kpi-icon{font-size:20px; opacity:.9;}
+  .kpi-card .kpi-value{font-size:26px; font-weight:800; margin-top:8px; line-height:1;}
+  .kpi-card .kpi-label{font-size:11px; opacity:.9; text-transform:uppercase; letter-spacing:.04em; margin-top:4px; font-weight:700;}
+  .kpi-card.purple{background:linear-gradient(135deg,#7C3AED,#A78BFA);}
+  .kpi-card.blue{background:linear-gradient(135deg,#2563EB,#60A5FA);}
+  .kpi-card.green{background:linear-gradient(135deg,#059669,#34D399);}
+  .kpi-card.red{background:linear-gradient(135deg,#DC2626,#F87171);}
+  #loginScreen{
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
+    background:var(--brand);
+  }
+  #loginScreen .card{width:100%; max-width:360px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .flame{font-size:36px; margin-bottom:6px;}
+  .msg{font-size:13px; padding:10px 12px; border-radius:10px; margin-top:10px; font-weight:600;}
+  .msg.ok{background:#D1FAE5; color:#065F46;}
+  .msg.err{background:#FEE2E2; color:#B91C1C;}
 </style>
 </head>
 <body>
@@ -125,7 +147,7 @@
 <div id="loginScreen">
   <div class="card">
     <div class="flame">🪔</div>
-    <h2>VSD Event Checklist</h2>
+    <h2>VSD Event Dashboard</h2>
     <p class="muted">Enter your email to receive a sign-in link.</p>
     <input type="email" id="loginEmail" placeholder="you@example.com" />
     <button class="btn" style="width:100%" onclick="sendMagicLink()">Send sign-in link</button>
@@ -138,7 +160,7 @@
     <div class="brand">
       <div class="dot"></div>
       <div>
-        <h1>VSD Event Checklist</h1>
+        <h1>VSD Event Dashboard</h1>
         <div class="sub" id="whoami"></div>
       </div>
     </div>
@@ -152,9 +174,8 @@
 // CONFIG — fill these in after creating your Supabase project
 // Dashboard → Project Settings → API
 // ============================================================
-
-const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 // Using a custom Postgres schema ("vsd") instead of the default "public".
 // It must also be added under Project Settings → API → Exposed schemas (see SETUP.md).
@@ -164,6 +185,51 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let currentUser = null;
 let isAdmin = false;
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+// ---------- VISUAL HELPERS ----------
+function bandColor(pct){
+  if(pct >= 100) return '#10B981';
+  if(pct >= 50) return '#2563EB';
+  if(pct > 0) return '#F59E0B';
+  return '#EF4444';
+}
+
+function ringSvg(pct, size, stroke){
+  size = size || 44; stroke = stroke || 4;
+  const radius = (size - stroke) / 2;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ - (pct / 100) * circ;
+  const color = bandColor(pct);
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="#EDEBF7" stroke-width="${stroke}"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="${color}" stroke-width="${stroke}"
+        stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
+        transform="rotate(-90 ${size/2} ${size/2})"/>
+      <text x="50%" y="50%" text-anchor="middle" dy="0.35em" font-size="${size*0.26}" font-weight="800" fill="${color}" font-family="'Plus Jakarta Sans',sans-serif">${pct}%</text>
+    </svg>
+  `;
+}
+
+async function getAreaCompletion(areaId, eventId){
+  const { data: items } = await sb.from('checklist_item').select('id')
+    .eq('event_id', eventId)
+    .or(`area_id.is.null,area_id.eq.${areaId}`);
+  const { data: statuses } = await sb.from('area_checklist_status').select('checklist_item_id,status').eq('area_id', areaId);
+  const statusMap = {};
+  (statuses || []).forEach(s => statusMap[s.checklist_item_id] = s.status);
+  let score = 0;
+  (items || []).forEach(it => {
+    const st = statusMap[it.id] || 'Not Done';
+    if(st === 'Done') score += 1;
+    else if(st === 'Partial') score += 0.5;
+  });
+  return (items && items.length) ? Math.round((score / items.length) * 100) : 0;
+}
 
 // ---------- AUTH ----------
 async function sendMagicLink(){
@@ -264,12 +330,14 @@ async function loadChecklistForArea(areaId, eventId){
 
     const rowClass = st.status === 'Done' ? ' done' : (st.status === 'Partial' ? ' partial' : '');
     const selClass = st.status === 'Done' ? 'st-done' : (st.status === 'Partial' ? 'st-partial' : 'st-notdone');
+    const overdue = item.due_date && st.status !== 'Done' && item.due_date < todayStr();
+    const dueBadge = item.due_date ? `<span class="due-badge${overdue ? ' overdue' : ''}">Due: ${item.due_date}</span>` : '';
 
     const div = document.createElement('div');
     div.className = 'checklist-item' + rowClass;
     div.innerHTML = `
       <div class="top">
-        <div class="label">${item.label}${item.area_id ? '<span class="tag-badge">this area only</span>' : ''}</div>
+        <div class="label">${item.label}${item.area_id ? '<span class="tag-badge">this area only</span>' : ''}${dueBadge}</div>
         <select class="status-select ${selClass}" id="status-${areaId}-${item.id}" onchange="this.className='status-select ' + (this.value==='Done'?'st-done':this.value==='Partial'?'st-partial':'st-notdone')">
           <option value="Not Done" ${st.status==='Not Done'?'selected':''}>Not Done</option>
           <option value="Partial" ${st.status==='Partial'?'selected':''}>Partially Done</option>
@@ -334,8 +402,8 @@ async function renderAdmin(){
   const main = document.getElementById('mainContent');
   main.innerHTML = `
     <div class="tab-bar">
-      <button id="tabSetup" class="active" onclick="showAdminTab('setup')">Setup</button>
-      <button id="tabOverview" onclick="showAdminTab('overview')">Overview</button>
+      <button id="tabSetup" class="active" onclick="showAdminTab('setup')">⚙️ Setup</button>
+      <button id="tabOverview" onclick="showAdminTab('overview')">📊 Overview</button>
     </div>
     <div id="adminTabContent"></div>
   `;
@@ -355,7 +423,7 @@ async function renderAdminSetup(){
 
   el.innerHTML = `
     <div class="card">
-      <h2>Create event</h2>
+      <h2>📅 Create event</h2>
       <label>Event name</label>
       <input type="text" id="newEventName" placeholder="e.g. Karuna Yatra - Flower Parcel Seva" />
       <label>Event date</label>
@@ -363,8 +431,8 @@ async function renderAdminSetup(){
       <button class="btn" onclick="createNewEvent()">Create event (with default checklist)</button>
     </div>
     <div class="card">
-      <h2>Select event</h2>
-      <select id="eventSelect" onchange="onEventSelect(this.value)" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);">
+      <h2>🎯 Select event</h2>
+      <select id="eventSelect" onchange="onEventSelect(this.value)">
         <option value="">-- choose event --</option>
         ${(events||[]).map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})</option>`).join('')}
       </select>
@@ -415,16 +483,17 @@ async function renderAreaManagement(){
 
   el.innerHTML = `
     <div class="card">
-      <h2>Shared checklist <span class="tag-badge">applies to every area</span></h2>
+      <h2>📋 Shared checklist <span class="tag-badge">applies to every area</span></h2>
       <div id="sharedChecklistList">${renderTodoRows(sharedItems || [])}</div>
       <label>Add shared to-do</label>
       <div class="row">
-        <input type="text" id="newSharedTodo" placeholder="e.g. Confirm flower quantity with vendor" style="flex:1;" />
+        <input type="text" id="newSharedTodo" placeholder="e.g. Confirm flower quantity with vendor" style="flex:2;min-width:160px;" />
+        <input type="date" id="newSharedTodoDue" style="flex:1;min-width:130px;" />
         <button class="btn small" onclick="addChecklistItem(null)">Add</button>
       </div>
     </div>
     <div class="card">
-      <h2>Add area</h2>
+      <h2>➕ Add area</h2>
       <label>Area name</label>
       <input type="text" id="newAreaName" placeholder="e.g. Zone 3" />
       <label>Temples in this area</label>
@@ -432,17 +501,35 @@ async function renderAreaManagement(){
       <button class="btn" onclick="createArea()">Add area</button>
     </div>
     ${(areas||[]).map(a => `
-      <div class="card" id="area-card-${a.id}">
+      <div class="card area-card" id="area-card-${a.id}">
         <div id="area-view-${a.id}">
           <div class="area-actions">
+            <span class="area-ring" id="ring-${a.id}"></span>
             <h2 style="flex:1;margin:0;">${a.area_name}</h2>
             <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit</button>
             <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete</button>
           </div>
           <div class="meta">Temples: ${a.temple_list || '-'}</div>
           ${a.area_assignment && a.area_assignment.length ? `
-            <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
-            <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
+            <div id="assign-view-${a.id}">
+              <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
+              <div class="row">
+                <button class="btn small secondary" onclick="showEditAssignment('${a.id}')">Edit incharge / team</button>
+                <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
+              </div>
+            </div>
+            <div id="assign-edit-${a.id}" class="hidden edit-form">
+              <label>Incharge name</label>
+              <input type="text" id="edit-ic-name-${a.id}" value="${a.area_assignment[0].incharge_name.replace(/"/g,'&quot;')}" />
+              <label>Incharge email</label>
+              <input type="email" id="edit-ic-email-${a.id}" value="${a.area_assignment[0].incharge_email.replace(/"/g,'&quot;')}" />
+              <label>Helper names</label>
+              <input type="text" id="edit-ic-helpers-${a.id}" value="${(a.area_assignment[0].helper_names || '').replace(/"/g,'&quot;')}" placeholder="e.g. Amit, Kunal" />
+              <div class="row">
+                <button class="btn small" onclick="saveAssignmentEdit('${a.id}','${a.area_assignment[0].id}')">Save</button>
+                <button class="btn small secondary" onclick="hideEditAssignment('${a.id}')">Cancel</button>
+              </div>
+            </div>
           ` : `
             <label>Incharge name</label>
             <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
@@ -467,7 +554,8 @@ async function renderAreaManagement(){
           <label style="margin-top:0;">To-do list for this area only</label>
           <div id="areaTodoList-${a.id}">${renderTodoRows(a.checklist_item || [])}</div>
           <div class="row">
-            <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:1;" />
+            <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:2;min-width:160px;" />
+            <input type="date" id="newAreaTodoDue-${a.id}" style="flex:1;min-width:130px;" />
             <button class="btn small" onclick="addChecklistItem('${a.id}')">Add</button>
           </div>
         </div>
@@ -475,29 +563,50 @@ async function renderAreaManagement(){
     `).join('')}
   `;
 
-  // area-specific checklist items weren't fetched in the areas query above — load them now
+  // area-specific checklist items + completion ring (not fetched in the areas query above)
   for(const a of (areas||[])){
     const { data: areaItems } = await sb.from('checklist_item').select('*').eq('area_id', a.id).order('sort_order');
     const listEl = document.getElementById(`areaTodoList-${a.id}`);
     if(listEl) listEl.innerHTML = renderTodoRows(areaItems || []);
+
+    const pct = await getAreaCompletion(a.id, adminActiveEventId);
+    const ringEl = document.getElementById(`ring-${a.id}`);
+    if(ringEl) ringEl.innerHTML = ringSvg(pct, 40, 4);
+    const cardEl = document.getElementById(`area-card-${a.id}`);
+    if(cardEl) cardEl.style.borderLeftColor = bandColor(pct);
   }
 }
 
 function renderTodoRows(items){
   if(!items || !items.length) return '<p class="muted" style="margin:4px 0;">None yet.</p>';
   return items.map(it => `
-    <div class="todo-row">
-      <div class="todo-label">${it.label}</div>
-      <button class="edit-icon" onclick="editChecklistItem('${it.id}','${it.label.replace(/'/g, "\\'")}')">Edit</button>
-      <button class="del-icon" onclick="deleteChecklistItem('${it.id}')">Delete</button>
+    <div id="todo-view-${it.id}">
+      <div class="todo-row">
+        <div class="todo-label">${it.label}${it.due_date ? `<span class="due-badge${it.due_date < todayStr() ? ' overdue' : ''}">Due: ${it.due_date}</span>` : ''}</div>
+        <button class="edit-icon" onclick="showEditTodo('${it.id}')">Edit</button>
+        <button class="del-icon" onclick="deleteChecklistItem('${it.id}')">Delete</button>
+      </div>
+    </div>
+    <div id="todo-edit-${it.id}" class="hidden edit-form" style="margin-top:0;padding-top:8px;">
+      <label style="margin-top:0;">To-do text</label>
+      <input type="text" id="todo-edit-label-${it.id}" value="${it.label.replace(/"/g,'&quot;')}" />
+      <label>Due date (optional)</label>
+      <input type="date" id="todo-edit-due-${it.id}" value="${it.due_date || ''}" />
+      <div class="row">
+        <button class="btn small" onclick="saveTodoEdit('${it.id}')">Save</button>
+        <button class="btn small secondary" onclick="hideEditTodo('${it.id}')">Cancel</button>
+      </div>
     </div>
   `).join('');
 }
 
 async function addChecklistItem(areaId){
   const inputId = areaId ? `newAreaTodo-${areaId}` : 'newSharedTodo';
+  const dueId = areaId ? `newAreaTodoDue-${areaId}` : 'newSharedTodoDue';
   const input = document.getElementById(inputId);
+  const dueInput = document.getElementById(dueId);
   const label = input.value.trim();
+  const due_date = dueInput.value || null;
   if(!label) return;
   const { data: existing } = await sb.from('checklist_item').select('sort_order')
     .eq('event_id', adminActiveEventId)
@@ -507,16 +616,28 @@ async function addChecklistItem(areaId){
     event_id: adminActiveEventId,
     area_id: areaId || null,
     label,
+    due_date,
     sort_order: nextOrder
   });
   input.value = '';
+  dueInput.value = '';
   await renderAreaManagement();
 }
 
-async function editChecklistItem(itemId, currentLabel){
-  const newLabel = prompt('Edit to-do text:', currentLabel);
-  if(newLabel === null || !newLabel.trim()) return;
-  await sb.from('checklist_item').update({ label: newLabel.trim() }).eq('id', itemId);
+function showEditTodo(itemId){
+  document.getElementById(`todo-view-${itemId}`).classList.add('hidden');
+  document.getElementById(`todo-edit-${itemId}`).classList.remove('hidden');
+}
+function hideEditTodo(itemId){
+  document.getElementById(`todo-view-${itemId}`).classList.remove('hidden');
+  document.getElementById(`todo-edit-${itemId}`).classList.add('hidden');
+}
+
+async function saveTodoEdit(itemId){
+  const label = document.getElementById(`todo-edit-label-${itemId}`).value.trim();
+  const due_date = document.getElementById(`todo-edit-due-${itemId}`).value || null;
+  if(!label){ alert('To-do text cannot be empty'); return; }
+  await sb.from('checklist_item').update({ label, due_date }).eq('id', itemId);
   await renderAreaManagement();
 }
 
@@ -570,6 +691,30 @@ async function assignIncharge(areaId){
   await renderAreaManagement();
 }
 
+function showEditAssignment(areaId){
+  document.getElementById(`assign-view-${areaId}`).classList.add('hidden');
+  document.getElementById(`assign-edit-${areaId}`).classList.remove('hidden');
+}
+function hideEditAssignment(areaId){
+  document.getElementById(`assign-view-${areaId}`).classList.remove('hidden');
+  document.getElementById(`assign-edit-${areaId}`).classList.add('hidden');
+}
+
+async function saveAssignmentEdit(areaId, assignmentId){
+  const incharge_name = document.getElementById(`edit-ic-name-${areaId}`).value.trim();
+  const incharge_email = document.getElementById(`edit-ic-email-${areaId}`).value.trim();
+  const helper_names = document.getElementById(`edit-ic-helpers-${areaId}`).value.trim();
+  if(!incharge_name || !incharge_email){ alert('Enter incharge name and email'); return; }
+  const { error } = await sb.from('area_assignment')
+    .update({ incharge_name, incharge_email, helper_names })
+    .eq('id', assignmentId);
+  if(error){ alert(error.message); return; }
+  await renderAreaManagement();
+  if(confirm('Details updated. Send a fresh assignment email to the (possibly new) incharge email now?')){
+    await sendAssignmentEmail(assignmentId, false);
+  }
+}
+
 async function sendAssignmentEmail(areaAssignmentId, silent){
   const { data, error } = await sb.functions.invoke('send-notification', {
     body: { type: 'TEAM_ASSIGNMENT', area_assignment_id: areaAssignmentId }
@@ -597,36 +742,53 @@ async function renderAdminOverview(){
   const statusMap = {};
   (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
 
-  let html = `<div class="card"><h2>Overview</h2><div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area</th><th>Incharge</th>`;
-  (items||[]).forEach((it,i) => html += `<th title="${it.label}${it.area_id ? ' (area-specific)' : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`);
-  html += `<th>%</th></tr></thead><tbody>`;
+  let totalPctSum = 0;
+  let overdueCount = 0;
+  const assignedCount = (areas||[]).filter(a => a.area_assignment && a.area_assignment.length).length;
 
+  let rows = '';
   (areas||[]).forEach(a => {
     const inc = a.area_assignment && a.area_assignment[0] ? a.area_assignment[0].incharge_name : '—';
     const applicableItems = (items||[]).filter(it => !it.area_id || it.area_id === a.id);
     let score = 0;
-    html += `<tr><td class="name">${a.area_name}</td><td>${inc}</td>`;
+    rows += `<tr><td class="name">${a.area_name}</td><td>${inc}</td>`;
     (items||[]).forEach(it => {
       if(it.area_id && it.area_id !== a.id){
-        html += `<td class="muted">—</td>`;
+        rows += `<td><span class="chip na">—</span></td>`;
         return;
       }
       const s = statusMap[`${a.id}_${it.id}`];
       const st = s ? s.status : 'Not Done';
       if(st === 'Done') score += 1;
       else if(st === 'Partial') score += 0.5;
+      if(it.due_date && st !== 'Done' && it.due_date < todayStr()) overdueCount++;
+      const chipClass = st === 'Done' ? 'done' : (st === 'Partial' ? 'partial' : 'notdone');
       const symbol = st === 'Done' ? '✓' : (st === 'Partial' ? '~' : '·');
-      const cls = st === 'Done' ? 'tag-done' : (st === 'Partial' ? 'tag-partial' : 'tag-pending');
-      html += `<td class="${cls}">${symbol}</td>`;
+      rows += `<td><span class="chip ${chipClass}">${symbol}</span></td>`;
     });
     const pct = applicableItems.length ? Math.round((score / applicableItems.length) * 100) : 0;
-    html += `<td><b>${pct}%</b></td></tr>`;
+    totalPctSum += pct;
+    rows += `<td><b style="color:${bandColor(pct)}">${pct}%</b></td></tr>`;
   });
 
-  html += `</tbody></table></div>`;
-  html += `<p class="muted" style="margin-top:10px;">✓ Done · ~ Partial · · Not Done · * = area-specific to-do (— means not applicable to that area)</p>`;
-  html += `<p class="muted">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}`).join(' · ')}</p>`;
-  html += `</div>`;
+  const overallPct = (areas && areas.length) ? Math.round(totalPctSum / areas.length) : 0;
+
+  let html = `
+    <div class="kpi-row">
+      <div class="kpi-card purple"><div class="kpi-icon">🏛️</div><div class="kpi-value">${(areas||[]).length}</div><div class="kpi-label">Areas</div></div>
+      <div class="kpi-card blue"><div class="kpi-icon">👤</div><div class="kpi-value">${assignedCount}/${(areas||[]).length}</div><div class="kpi-label">Incharges Assigned</div></div>
+      <div class="kpi-card green"><div class="kpi-icon">📈</div><div class="kpi-value">${overallPct}%</div><div class="kpi-label">Overall Completion</div></div>
+      <div class="kpi-card red"><div class="kpi-icon">⏰</div><div class="kpi-value">${overdueCount}</div><div class="kpi-label">Overdue Items</div></div>
+    </div>
+    <div class="card">
+      <h2>Area Progress</h2>
+      <div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area</th><th>Incharge</th>
+      ${(items||[]).map((it,i)=>`<th title="${it.label}${it.area_id ? ' (area-specific)' : ''}${it.due_date ? ' — due ' + it.due_date : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`).join('')}
+      <th>%</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="muted" style="margin-top:10px;">✓ Done · ~ Partial · · Not Done · * = area-specific to-do (— means not applicable to that area)</p>
+      <p class="muted">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}${it.due_date ? ' (due ' + it.due_date + ')' : ''}`).join(' · ')}</p>
+    </div>
+  `;
   el.innerHTML = html;
 }
 
