@@ -16,6 +16,7 @@
     --line:#E7DCC5;
     --done:#3E7A4B;
     --pending:#B9720C;
+    --partial:#C98A1F;
     --radius:14px;
   }
   *{box-sizing:border-box;}
@@ -71,6 +72,25 @@
   }
   .status-pill.pending{background:#FCEFDA; color:var(--pending);}
   .status-pill.done{background:#E1F2E4; color:var(--done);}
+  .status-select{
+    padding:6px 10px; border-radius:8px; border:1px solid var(--line); font-size:13px;
+    font-weight:600; background:#fff; cursor:pointer;
+  }
+  .status-select.st-done{color:var(--done); border-color:var(--done); background:#F3FAF4;}
+  .status-select.st-partial{color:var(--partial); border-color:var(--partial); background:#FEF7EA;}
+  .status-select.st-notdone{color:#8a7a5f; border-color:var(--line); background:#fff;}
+  .checklist-item.partial{border-color:var(--partial); background:#FEFBF3;}
+  .btn.danger{color:#A02B2B; border:1px solid #A02B2B; background:transparent;}
+  .btn.danger:hover{background:#FBE4E4;}
+  .area-actions{display:flex; gap:8px; margin-bottom:10px;}
+  .edit-form{border-top:1px solid var(--line); margin-top:10px; padding-top:10px;}
+  .todo-row{display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .todo-row:last-child{border-bottom:none;}
+  .todo-row .todo-label{flex:1;}
+  .todo-row button{background:none; border:none; cursor:pointer; font-size:12px; padding:2px 6px;}
+  .todo-row .edit-icon{color:var(--marigold-dark);}
+  .todo-row .del-icon{color:#A02B2B;}
+  .tag-badge{font-size:10px; background:#EFE7D2; color:#6b5a3e; padding:2px 6px; border-radius:6px; margin-left:6px;}
   .checklist-item details{margin-top:8px;}
   .checklist-item summary{font-size:12px; color:#8a7a5f; cursor:pointer;}
   .photo-preview{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
@@ -82,6 +102,7 @@
   .grid-table td.name{text-align:left; font-weight:600;}
   .tag-done{color:var(--done); font-weight:700;}
   .tag-pending{color:var(--pending);}
+  .tag-partial{color:var(--partial); font-weight:700;}
   .muted{color:#8a7a5f; font-size:13px;}
   .center{text-align:center;}
   .hidden{display:none !important;}
@@ -131,8 +152,8 @@
 // CONFIG — fill these in after creating your Supabase project
 // Dashboard → Project Settings → API
 // ============================================================
-const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 // Using a custom Postgres schema ("vsd") instead of the default "public".
 // It must also be added under Project Settings → API → Exposed schemas (see SETUP.md).
@@ -222,7 +243,10 @@ async function renderIncharge(){
 }
 
 async function loadChecklistForArea(areaId, eventId){
-  const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', eventId).order('sort_order');
+  const { data: items } = await sb.from('checklist_item').select('*')
+    .eq('event_id', eventId)
+    .or(`area_id.is.null,area_id.eq.${areaId}`)
+    .order('sort_order');
   const { data: statuses } = await sb.from('area_checklist_status').select('*').eq('area_id', areaId);
 
   const statusMap = {};
@@ -230,57 +254,46 @@ async function loadChecklistForArea(areaId, eventId){
 
   const container = document.getElementById(`checklist-${areaId}`);
   container.innerHTML = '';
-  let doneCount = 0;
+  let score = 0;
 
   (items || []).forEach(item => {
-    const st = statusMap[item.id] || { status: 'Pending', comment: '', photo_url: null };
-    if(st.status === 'Done') doneCount++;
+    const st = statusMap[item.id] || { status: 'Not Done', comment: '', photo_url: null };
+    if(st.status === 'Done') score += 1;
+    else if(st.status === 'Partial') score += 0.5;
+
+    const rowClass = st.status === 'Done' ? ' done' : (st.status === 'Partial' ? ' partial' : '');
+    const selClass = st.status === 'Done' ? 'st-done' : (st.status === 'Partial' ? 'st-partial' : 'st-notdone');
 
     const div = document.createElement('div');
-    div.className = 'checklist-item' + (st.status === 'Done' ? ' done' : '');
+    div.className = 'checklist-item' + rowClass;
     div.innerHTML = `
       <div class="top">
-        <div class="label">${item.label}</div>
-        <button class="status-pill ${st.status === 'Done' ? 'done' : 'pending'}"
-          onclick="toggleStatus('${areaId}','${item.id}','${st.status}')">
-          ${st.status === 'Done' ? '✓ Done' : 'Pending'}
-        </button>
+        <div class="label">${item.label}${item.area_id ? '<span class="tag-badge">this area only</span>' : ''}</div>
+        <select class="status-select ${selClass}" id="status-${areaId}-${item.id}" onchange="this.className='status-select ' + (this.value==='Done'?'st-done':this.value==='Partial'?'st-partial':'st-notdone')">
+          <option value="Not Done" ${st.status==='Not Done'?'selected':''}>Not Done</option>
+          <option value="Partial" ${st.status==='Partial'?'selected':''}>Partially Done</option>
+          <option value="Done" ${st.status==='Done'?'selected':''}>Done</option>
+        </select>
       </div>
-      <details ${st.comment || st.photo_url ? 'open' : ''}>
-        <summary>Add comment / photo</summary>
-        <label>Comment</label>
-        <textarea id="comment-${areaId}-${item.id}" placeholder="e.g. Waiting for pujari confirmation">${st.comment || ''}</textarea>
-        <label>Photo (aangi / activity)</label>
-        <input type="file" accept="image/*" id="file-${areaId}-${item.id}" />
-        ${st.photo_url ? `<img class="photo-preview" src="${st.photo_url}" />` : ''}
-        <div class="row">
-          <button class="btn small" onclick="saveDetails('${areaId}','${item.id}')">Save</button>
-        </div>
-      </details>
+      <label>Comment</label>
+      <textarea id="comment-${areaId}-${item.id}" placeholder="e.g. Waiting for pujari confirmation">${st.comment || ''}</textarea>
+      <label>Photo (aangi / activity)</label>
+      <input type="file" accept="image/*" id="file-${areaId}-${item.id}" />
+      ${st.photo_url ? `<img class="photo-preview" src="${st.photo_url}" />` : ''}
+      <div class="row">
+        <button class="btn small" onclick="saveChecklistItem('${areaId}','${item.id}')">Save</button>
+      </div>
     `;
     container.appendChild(div);
   });
 
-  const pct = items && items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const pct = items && items.length ? Math.round((score / items.length) * 100) : 0;
   const bar = document.getElementById(`prog-${areaId}`);
   if(bar) bar.style.width = pct + '%';
 }
 
-async function toggleStatus(areaId, itemId, currentStatus){
-  const newStatus = currentStatus === 'Done' ? 'Pending' : 'Done';
-  await sb.from('area_checklist_status').upsert({
-    area_id: areaId,
-    checklist_item_id: itemId,
-    status: newStatus,
-    updated_by: currentUser.email,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'area_id,checklist_item_id' });
-
-  const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
-  await loadChecklistForArea(areaId, areaRow.event_id);
-}
-
-async function saveDetails(areaId, itemId){
+async function saveChecklistItem(areaId, itemId){
+  const status = document.getElementById(`status-${areaId}-${itemId}`).value;
   const comment = document.getElementById(`comment-${areaId}-${itemId}`).value;
   const fileInput = document.getElementById(`file-${areaId}-${itemId}`);
   let photo_url = null;
@@ -298,14 +311,12 @@ async function saveDetails(areaId, itemId){
   const updatePayload = {
     area_id: areaId,
     checklist_item_id: itemId,
+    status,
     comment,
     updated_by: currentUser.email,
     updated_at: new Date().toISOString()
   };
   if(photo_url) updatePayload.photo_url = photo_url;
-
-  const { data: existing } = await sb.from('area_checklist_status').select('status').eq('area_id', areaId).eq('checklist_item_id', itemId).maybeSingle();
-  if(!existing) updatePayload.status = 'Pending';
 
   await sb.from('area_checklist_status').upsert(updatePayload, { onConflict: 'area_id,checklist_item_id' });
 
@@ -399,8 +410,18 @@ async function renderAreaManagement(){
   if(!adminActiveEventId){ el.innerHTML = ''; return; }
 
   const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
+  const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
 
   el.innerHTML = `
+    <div class="card">
+      <h2>Shared checklist <span class="tag-badge">applies to every area</span></h2>
+      <div id="sharedChecklistList">${renderTodoRows(sharedItems || [])}</div>
+      <label>Add shared to-do</label>
+      <div class="row">
+        <input type="text" id="newSharedTodo" placeholder="e.g. Confirm flower quantity with vendor" style="flex:1;" />
+        <button class="btn small" onclick="addChecklistItem(null)">Add</button>
+      </div>
+    </div>
     <div class="card">
       <h2>Add area</h2>
       <label>Area name</label>
@@ -410,24 +431,121 @@ async function renderAreaManagement(){
       <button class="btn" onclick="createArea()">Add area</button>
     </div>
     ${(areas||[]).map(a => `
-      <div class="card">
-        <h2>${a.area_name}</h2>
-        <div class="meta">Temples: ${a.temple_list || '-'}</div>
-        ${a.area_assignment && a.area_assignment.length ? `
-          <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
-          <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
-        ` : `
-          <label>Incharge name</label>
-          <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
-          <label>Incharge email</label>
-          <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
-          <label>Helper names (optional)</label>
-          <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
-          <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
-        `}
+      <div class="card" id="area-card-${a.id}">
+        <div id="area-view-${a.id}">
+          <div class="area-actions">
+            <h2 style="flex:1;margin:0;">${a.area_name}</h2>
+            <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit</button>
+            <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete</button>
+          </div>
+          <div class="meta">Temples: ${a.temple_list || '-'}</div>
+          ${a.area_assignment && a.area_assignment.length ? `
+            <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
+            <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
+          ` : `
+            <label>Incharge name</label>
+            <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
+            <label>Incharge email</label>
+            <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
+            <label>Helper names (optional)</label>
+            <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
+            <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
+          `}
+        </div>
+        <div id="area-edit-${a.id}" class="hidden edit-form">
+          <label>Area name</label>
+          <input type="text" id="edit-name-${a.id}" value="${a.area_name.replace(/"/g,'&quot;')}" />
+          <label>Temples in this area</label>
+          <textarea id="edit-temples-${a.id}">${a.temple_list || ''}</textarea>
+          <div class="row">
+            <button class="btn small" onclick="saveAreaEdit('${a.id}')">Save</button>
+            <button class="btn small secondary" onclick="hideEditArea('${a.id}')">Cancel</button>
+          </div>
+        </div>
+        <div class="edit-form">
+          <label style="margin-top:0;">To-do list for this area only</label>
+          <div id="areaTodoList-${a.id}">${renderTodoRows(a.checklist_item || [])}</div>
+          <div class="row">
+            <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:1;" />
+            <button class="btn small" onclick="addChecklistItem('${a.id}')">Add</button>
+          </div>
+        </div>
       </div>
     `).join('')}
   `;
+
+  // area-specific checklist items weren't fetched in the areas query above — load them now
+  for(const a of (areas||[])){
+    const { data: areaItems } = await sb.from('checklist_item').select('*').eq('area_id', a.id).order('sort_order');
+    const listEl = document.getElementById(`areaTodoList-${a.id}`);
+    if(listEl) listEl.innerHTML = renderTodoRows(areaItems || []);
+  }
+}
+
+function renderTodoRows(items){
+  if(!items || !items.length) return '<p class="muted" style="margin:4px 0;">None yet.</p>';
+  return items.map(it => `
+    <div class="todo-row">
+      <div class="todo-label">${it.label}</div>
+      <button class="edit-icon" onclick="editChecklistItem('${it.id}','${it.label.replace(/'/g, "\\'")}')">Edit</button>
+      <button class="del-icon" onclick="deleteChecklistItem('${it.id}')">Delete</button>
+    </div>
+  `).join('');
+}
+
+async function addChecklistItem(areaId){
+  const inputId = areaId ? `newAreaTodo-${areaId}` : 'newSharedTodo';
+  const input = document.getElementById(inputId);
+  const label = input.value.trim();
+  if(!label) return;
+  const { data: existing } = await sb.from('checklist_item').select('sort_order')
+    .eq('event_id', adminActiveEventId)
+    .order('sort_order', { ascending: false }).limit(1);
+  const nextOrder = existing && existing.length ? existing[0].sort_order + 1 : 0;
+  await sb.from('checklist_item').insert({
+    event_id: adminActiveEventId,
+    area_id: areaId || null,
+    label,
+    sort_order: nextOrder
+  });
+  input.value = '';
+  await renderAreaManagement();
+}
+
+async function editChecklistItem(itemId, currentLabel){
+  const newLabel = prompt('Edit to-do text:', currentLabel);
+  if(newLabel === null || !newLabel.trim()) return;
+  await sb.from('checklist_item').update({ label: newLabel.trim() }).eq('id', itemId);
+  await renderAreaManagement();
+}
+
+async function deleteChecklistItem(itemId){
+  if(!confirm('Delete this to-do item? Any status/comments recorded against it will also be removed.')) return;
+  await sb.from('checklist_item').delete().eq('id', itemId);
+  await renderAreaManagement();
+}
+
+function showEditArea(areaId){
+  document.getElementById(`area-view-${areaId}`).classList.add('hidden');
+  document.getElementById(`area-edit-${areaId}`).classList.remove('hidden');
+}
+function hideEditArea(areaId){
+  document.getElementById(`area-view-${areaId}`).classList.remove('hidden');
+  document.getElementById(`area-edit-${areaId}`).classList.add('hidden');
+}
+
+async function saveAreaEdit(areaId){
+  const area_name = document.getElementById(`edit-name-${areaId}`).value.trim();
+  const temple_list = document.getElementById(`edit-temples-${areaId}`).value.trim();
+  if(!area_name){ alert('Area name cannot be empty'); return; }
+  await sb.from('area').update({ area_name, temple_list }).eq('id', areaId);
+  await renderAreaManagement();
+}
+
+async function deleteArea(areaId, areaName){
+  if(!confirm(`Delete "${areaName}"? This also removes its incharge assignment, area-specific to-dos, and all recorded status/comments/photos for this area. This cannot be undone.`)) return;
+  await sb.from('area').delete().eq('id', areaId);
+  await renderAreaManagement();
 }
 
 async function createArea(){
@@ -479,25 +597,34 @@ async function renderAdminOverview(){
   (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
 
   let html = `<div class="card"><h2>Overview</h2><div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area</th><th>Incharge</th>`;
-  (items||[]).forEach((it,i) => html += `<th title="${it.label}">#${i+1}</th>`);
+  (items||[]).forEach((it,i) => html += `<th title="${it.label}${it.area_id ? ' (area-specific)' : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`);
   html += `<th>%</th></tr></thead><tbody>`;
 
   (areas||[]).forEach(a => {
     const inc = a.area_assignment && a.area_assignment[0] ? a.area_assignment[0].incharge_name : '—';
-    let doneCount = 0;
+    const applicableItems = (items||[]).filter(it => !it.area_id || it.area_id === a.id);
+    let score = 0;
     html += `<tr><td class="name">${a.area_name}</td><td>${inc}</td>`;
     (items||[]).forEach(it => {
+      if(it.area_id && it.area_id !== a.id){
+        html += `<td class="muted">—</td>`;
+        return;
+      }
       const s = statusMap[`${a.id}_${it.id}`];
-      const done = s && s.status === 'Done';
-      if(done) doneCount++;
-      html += `<td class="${done ? 'tag-done' : 'tag-pending'}">${done ? '✓' : '·'}</td>`;
+      const st = s ? s.status : 'Not Done';
+      if(st === 'Done') score += 1;
+      else if(st === 'Partial') score += 0.5;
+      const symbol = st === 'Done' ? '✓' : (st === 'Partial' ? '~' : '·');
+      const cls = st === 'Done' ? 'tag-done' : (st === 'Partial' ? 'tag-partial' : 'tag-pending');
+      html += `<td class="${cls}">${symbol}</td>`;
     });
-    const pct = items && items.length ? Math.round((doneCount/items.length)*100) : 0;
+    const pct = applicableItems.length ? Math.round((score / applicableItems.length) * 100) : 0;
     html += `<td><b>${pct}%</b></td></tr>`;
   });
 
   html += `</tbody></table></div>`;
-  html += `<p class="muted" style="margin-top:10px;">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}`).join(' · ')}</p>`;
+  html += `<p class="muted" style="margin-top:10px;">✓ Done · ~ Partial · · Not Done · * = area-specific to-do (— means not applicable to that area)</p>`;
+  html += `<p class="muted">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}`).join(' · ')}</p>`;
   html += `</div>`;
   el.innerHTML = html;
 }

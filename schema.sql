@@ -53,9 +53,13 @@ create table if not exists vsd.area_assignment (
 );
 
 -- ---------- CHECKLIST ITEM ----------
+-- event_id: which event this to-do belongs to.
+-- area_id: NULL = shared to-do that applies to every area in the event.
+--          set   = extra to-do that only shows for that specific area.
 create table if not exists vsd.checklist_item (
   id uuid primary key default gen_random_uuid(),
   event_id uuid references vsd.event(id) on delete cascade,
+  area_id uuid references vsd.area(id) on delete cascade,
   label text not null,
   sort_order int default 0
 );
@@ -65,7 +69,7 @@ create table if not exists vsd.area_checklist_status (
   id uuid primary key default gen_random_uuid(),
   area_id uuid references vsd.area(id) on delete cascade,
   checklist_item_id uuid references vsd.checklist_item(id) on delete cascade,
-  status text not null default 'Pending',
+  status text not null default 'Not Done', -- 'Not Done' / 'Partial' / 'Done'
   comment text,
   photo_url text,
   updated_by text,
