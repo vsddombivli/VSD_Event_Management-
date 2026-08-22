@@ -46,7 +46,7 @@
     padding:7px 14px; border-radius:10px; font-size:13px; cursor:pointer; font-weight:600;
   }
   header button:hover{background:rgba(255,255,255,.28);}
-  main{max-width:680px; margin:0 auto; padding:20px 16px 60px;}
+  main{max-width:1080px; margin:0 auto; padding:20px 16px 60px;}
   .card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
     padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
@@ -88,8 +88,6 @@
   .btn.danger{color:var(--red); border:1.5px solid var(--red); background:#fff; box-shadow:none;}
   .btn.danger:hover{background:#FEF2F2; transform:none;}
   .area-actions{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
-  .area-ring{display:flex; align-items:center; flex-shrink:0;}
-  .area-card{border-left:6px solid var(--line);}
   .edit-form{border-top:1px solid var(--line); margin-top:10px; padding-top:10px;}
   .todo-row{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
   .todo-row:last-child{border-bottom:none;}
@@ -116,13 +114,13 @@
   .muted{color:var(--muted); font-size:13px;}
   .center{text-align:center;}
   .hidden{display:none !important;}
-  .tab-bar{display:flex; gap:4px; margin-bottom:16px; background:#fff; border-radius:14px; padding:4px; box-shadow:var(--shadow);}
+  .tab-bar{display:flex; gap:4px; margin-bottom:16px; background:#fff; border-radius:14px; padding:4px; box-shadow:var(--shadow); max-width:340px;}
   .tab-bar button{
     flex:1; padding:10px; border-radius:10px; border:none; background:transparent;
     font-size:13px; cursor:pointer; font-weight:700; color:var(--muted);
   }
   .tab-bar button.active{background:var(--brand); color:#fff; box-shadow:0 2px 8px rgba(124,58,237,.3);}
-  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:12px; margin-bottom:16px;}
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px;}
   .kpi-card{border-radius:16px; padding:16px; color:#fff; box-shadow:var(--shadow);}
   .kpi-card .kpi-icon{font-size:20px; opacity:.9;}
   .kpi-card .kpi-value{font-size:26px; font-weight:800; margin-top:8px; line-height:1;}
@@ -131,6 +129,40 @@
   .kpi-card.blue{background:linear-gradient(135deg,#2563EB,#60A5FA);}
   .kpi-card.green{background:linear-gradient(135deg,#059669,#34D399);}
   .kpi-card.red{background:linear-gradient(135deg,#DC2626,#F87171);}
+
+  /* ---------- Area grid (side-by-side summary cards) ---------- */
+  .section-heading{display:flex; align-items:baseline; gap:8px; margin:22px 0 12px;}
+  .section-heading h2{margin:0; font-size:15px; font-weight:800;}
+  .area-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-bottom:8px;}
+  .area-grid-card{
+    background:#fff; border:1px solid var(--line); border-top:5px solid var(--line);
+    border-radius:14px; padding:14px; box-shadow:var(--shadow); cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease; text-align:left;
+  }
+  .area-grid-card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(76,29,149,.16);}
+  .area-grid-top{display:flex; align-items:center; gap:10px;}
+  .area-grid-ring{flex-shrink:0; line-height:0;}
+  .area-grid-title{flex:1; min-width:0;}
+  .area-grid-name{font-weight:800; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .area-grid-temples{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;}
+  .area-grid-footer{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px;}
+  .area-grid-count{font-size:11px; color:var(--muted); font-weight:800;}
+
+  /* ---------- Modal (area detail / management) ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(33,27,54,.55); backdrop-filter:blur(2px);
+    display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:100; overflow-y:auto;
+  }
+  .modal-panel{
+    background:var(--surface); border-radius:20px; max-width:520px; width:100%;
+    padding:22px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,.35); margin:auto;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:14px; background:#F5F3FB; border:1px solid var(--line);
+    border-radius:50%; width:32px; height:32px; font-size:14px; cursor:pointer; color:var(--muted);
+  }
+  .modal-close:hover{color:var(--red); border-color:var(--red); background:#FEF2F2;}
+
   #loginScreen{
     display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
     background:var(--brand);
@@ -174,8 +206,8 @@
 // CONFIG — fill these in after creating your Supabase project
 // Dashboard → Project Settings → API
 // ============================================================
-const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 // Using a custom Postgres schema ("vsd") instead of the default "public".
 // It must also be added under Project Settings → API → Exposed schemas (see SETUP.md).
@@ -185,6 +217,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let currentUser = null;
 let isAdmin = false;
+let currentModalAreaId = null;
 
 function todayStr(){
   return new Date().toISOString().slice(0,10);
@@ -215,20 +248,22 @@ function ringSvg(pct, size, stroke){
   `;
 }
 
-async function getAreaCompletion(areaId, eventId){
+async function getAreaStats(areaId, eventId){
   const { data: items } = await sb.from('checklist_item').select('id')
     .eq('event_id', eventId)
     .or(`area_id.is.null,area_id.eq.${areaId}`);
   const { data: statuses } = await sb.from('area_checklist_status').select('checklist_item_id,status').eq('area_id', areaId);
   const statusMap = {};
   (statuses || []).forEach(s => statusMap[s.checklist_item_id] = s.status);
-  let score = 0;
+  let score = 0, doneCount = 0;
   (items || []).forEach(it => {
     const st = statusMap[it.id] || 'Not Done';
-    if(st === 'Done') score += 1;
+    if(st === 'Done'){ score += 1; doneCount += 1; }
     else if(st === 'Partial') score += 0.5;
   });
-  return (items && items.length) ? Math.round((score / items.length) * 100) : 0;
+  const total = items ? items.length : 0;
+  const pct = total ? Math.round((score / total) * 100) : 0;
+  return { pct, doneCount, total };
 }
 
 // ---------- AUTH ----------
@@ -406,6 +441,12 @@ async function renderAdmin(){
       <button id="tabOverview" onclick="showAdminTab('overview')">📊 Overview</button>
     </div>
     <div id="adminTabContent"></div>
+    <div id="areaModalBackdrop" class="modal-backdrop hidden" onclick="closeAreaModalIfBackdrop(event)">
+      <div class="modal-panel" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeAreaModal()">✕</button>
+        <div id="areaModalContent"></div>
+      </div>
+    </div>
   `;
   await showAdminTab('setup');
 }
@@ -471,14 +512,15 @@ async function createNewEvent(){
 
 async function onEventSelect(eventId){
   adminActiveEventId = eventId || null;
+  closeAreaModal();
   await renderAreaManagement();
 }
 
+// ---------- Page-level Setup card (shared checklist, add area, area grid) ----------
 async function renderAreaManagement(){
   const el = document.getElementById('areaManagement');
   if(!adminActiveEventId){ el.innerHTML = ''; return; }
 
-  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
   const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
 
   el.innerHTML = `
@@ -500,81 +542,153 @@ async function renderAreaManagement(){
       <textarea id="newAreaTemples" placeholder="e.g. Temple A, Temple B, Temple C"></textarea>
       <button class="btn" onclick="createArea()">Add area</button>
     </div>
-    ${(areas||[]).map(a => `
-      <div class="card area-card" id="area-card-${a.id}">
-        <div id="area-view-${a.id}">
-          <div class="area-actions">
-            <span class="area-ring" id="ring-${a.id}"></span>
-            <h2 style="flex:1;margin:0;">${a.area_name}</h2>
-            <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit</button>
-            <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete</button>
-          </div>
-          <div class="meta">Temples: ${a.temple_list || '-'}</div>
-          ${a.area_assignment && a.area_assignment.length ? `
-            <div id="assign-view-${a.id}">
-              <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
-              <div class="row">
-                <button class="btn small secondary" onclick="showEditAssignment('${a.id}')">Edit incharge / team</button>
-                <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
-              </div>
-            </div>
-            <div id="assign-edit-${a.id}" class="hidden edit-form">
-              <label>Incharge name</label>
-              <input type="text" id="edit-ic-name-${a.id}" value="${a.area_assignment[0].incharge_name.replace(/"/g,'&quot;')}" />
-              <label>Incharge email</label>
-              <input type="email" id="edit-ic-email-${a.id}" value="${a.area_assignment[0].incharge_email.replace(/"/g,'&quot;')}" />
-              <label>Helper names</label>
-              <input type="text" id="edit-ic-helpers-${a.id}" value="${(a.area_assignment[0].helper_names || '').replace(/"/g,'&quot;')}" placeholder="e.g. Amit, Kunal" />
-              <div class="row">
-                <button class="btn small" onclick="saveAssignmentEdit('${a.id}','${a.area_assignment[0].id}')">Save</button>
-                <button class="btn small secondary" onclick="hideEditAssignment('${a.id}')">Cancel</button>
-              </div>
-            </div>
-          ` : `
-            <label>Incharge name</label>
-            <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
-            <label>Incharge email</label>
-            <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
-            <label>Helper names (optional)</label>
-            <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
-            <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
-          `}
-        </div>
-        <div id="area-edit-${a.id}" class="hidden edit-form">
-          <label>Area name</label>
-          <input type="text" id="edit-name-${a.id}" value="${a.area_name.replace(/"/g,'&quot;')}" />
-          <label>Temples in this area</label>
-          <textarea id="edit-temples-${a.id}">${a.temple_list || ''}</textarea>
-          <div class="row">
-            <button class="btn small" onclick="saveAreaEdit('${a.id}')">Save</button>
-            <button class="btn small secondary" onclick="hideEditArea('${a.id}')">Cancel</button>
-          </div>
-        </div>
-        <div class="edit-form">
-          <label style="margin-top:0;">To-do list for this area only</label>
-          <div id="areaTodoList-${a.id}">${renderTodoRows(a.checklist_item || [])}</div>
-          <div class="row">
-            <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:2;min-width:160px;" />
-            <input type="date" id="newAreaTodoDue-${a.id}" style="flex:1;min-width:130px;" />
-            <button class="btn small" onclick="addChecklistItem('${a.id}')">Add</button>
-          </div>
-        </div>
-      </div>
-    `).join('')}
+    <div class="section-heading">
+      <h2>🗺️ All areas</h2>
+      <span class="muted">tap a card to manage it</span>
+    </div>
+    <div class="area-grid" id="areaGridContainer"><p class="muted">Loading...</p></div>
   `;
 
-  // area-specific checklist items + completion ring (not fetched in the areas query above)
-  for(const a of (areas||[])){
-    const { data: areaItems } = await sb.from('checklist_item').select('*').eq('area_id', a.id).order('sort_order');
-    const listEl = document.getElementById(`areaTodoList-${a.id}`);
-    if(listEl) listEl.innerHTML = renderTodoRows(areaItems || []);
+  await renderAreaGrid();
+}
 
-    const pct = await getAreaCompletion(a.id, adminActiveEventId);
-    const ringEl = document.getElementById(`ring-${a.id}`);
-    if(ringEl) ringEl.innerHTML = ringSvg(pct, 40, 4);
-    const cardEl = document.getElementById(`area-card-${a.id}`);
-    if(cardEl) cardEl.style.borderLeftColor = bandColor(pct);
+// ---------- Compact side-by-side area cards ----------
+async function renderAreaGrid(){
+  const gridEl = document.getElementById('areaGridContainer');
+  if(!gridEl) return;
+
+  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
+
+  if(!areas || !areas.length){
+    gridEl.innerHTML = '<p class="muted">No areas yet — add one above.</p>';
+    return;
   }
+
+  gridEl.innerHTML = areas.map(a => `
+    <div class="area-grid-card" id="grid-card-${a.id}" onclick="openAreaModal('${a.id}')">
+      <div class="area-grid-top">
+        <span class="area-grid-ring" id="grid-ring-${a.id}"></span>
+        <div class="area-grid-title">
+          <div class="area-grid-name">${a.area_name}</div>
+          <div class="area-grid-temples">${a.temple_list || 'No temples listed'}</div>
+        </div>
+      </div>
+      <div class="area-grid-footer">
+        <span class="area-grid-count" id="grid-count-${a.id}">...</span>
+        ${a.area_assignment && a.area_assignment.length ? `
+          <span class="chip done" style="background:#EDE9FE;color:#5B21B6;">👤 ${a.area_assignment[0].incharge_name}</span>
+        ` : `<span class="chip partial">⚠ Unassigned</span>`}
+      </div>
+    </div>
+  `).join('');
+
+  for(const a of areas){
+    const stats = await getAreaStats(a.id, adminActiveEventId);
+    const ringEl = document.getElementById(`grid-ring-${a.id}`);
+    if(ringEl) ringEl.innerHTML = ringSvg(stats.pct, 46, 5);
+    const countEl = document.getElementById(`grid-count-${a.id}`);
+    if(countEl) countEl.textContent = `${stats.doneCount}/${stats.total} done`;
+    const cardEl = document.getElementById(`grid-card-${a.id}`);
+    if(cardEl) cardEl.style.borderTopColor = bandColor(stats.pct);
+  }
+}
+
+// ---------- Modal: full management for one area ----------
+async function openAreaModal(areaId){
+  currentModalAreaId = areaId;
+  const { data: a } = await sb.from('area').select('*, area_assignment(*)').eq('id', areaId).single();
+  const { data: areaItems } = await sb.from('checklist_item').select('*').eq('area_id', areaId).order('sort_order');
+  const stats = await getAreaStats(a.id, a.event_id);
+
+  const modalContent = document.getElementById('areaModalContent');
+  modalContent.innerHTML = `
+    <div id="area-view-${a.id}">
+      <div class="area-actions">
+        <span class="area-ring">${ringSvg(stats.pct, 46, 5)}</span>
+        <h2 style="flex:1;margin:0;">${a.area_name}</h2>
+      </div>
+      <div class="row">
+        <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit area</button>
+        <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete area</button>
+      </div>
+      <div class="meta" style="margin-top:10px;">Temples: ${a.temple_list || '-'}</div>
+      ${a.area_assignment && a.area_assignment.length ? `
+        <div id="assign-view-${a.id}">
+          <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
+          <div class="row">
+            <button class="btn small secondary" onclick="showEditAssignment('${a.id}')">Edit incharge / team</button>
+            <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
+          </div>
+        </div>
+        <div id="assign-edit-${a.id}" class="hidden edit-form">
+          <label>Incharge name</label>
+          <input type="text" id="edit-ic-name-${a.id}" value="${a.area_assignment[0].incharge_name.replace(/"/g,'&quot;')}" />
+          <label>Incharge email</label>
+          <input type="email" id="edit-ic-email-${a.id}" value="${a.area_assignment[0].incharge_email.replace(/"/g,'&quot;')}" />
+          <label>Helper names</label>
+          <input type="text" id="edit-ic-helpers-${a.id}" value="${(a.area_assignment[0].helper_names || '').replace(/"/g,'&quot;')}" placeholder="e.g. Amit, Kunal" />
+          <div class="row">
+            <button class="btn small" onclick="saveAssignmentEdit('${a.id}','${a.area_assignment[0].id}')">Save</button>
+            <button class="btn small secondary" onclick="hideEditAssignment('${a.id}')">Cancel</button>
+          </div>
+        </div>
+      ` : `
+        <label>Incharge name</label>
+        <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
+        <label>Incharge email</label>
+        <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
+        <label>Helper names (optional)</label>
+        <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
+        <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
+      `}
+      <div id="area-edit-${a.id}" class="hidden edit-form">
+        <label>Area name</label>
+        <input type="text" id="edit-name-${a.id}" value="${a.area_name.replace(/"/g,'&quot;')}" />
+        <label>Temples in this area</label>
+        <textarea id="edit-temples-${a.id}">${a.temple_list || ''}</textarea>
+        <div class="row">
+          <button class="btn small" onclick="saveAreaEdit('${a.id}')">Save</button>
+          <button class="btn small secondary" onclick="hideEditArea('${a.id}')">Cancel</button>
+        </div>
+      </div>
+      <div class="edit-form">
+        <label style="margin-top:0;">To-do list for this area only</label>
+        <div id="areaTodoList-${a.id}">${renderTodoRows(areaItems || [])}</div>
+        <div class="row">
+          <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:2;min-width:160px;" />
+          <input type="date" id="newAreaTodoDue-${a.id}" style="flex:1;min-width:130px;" />
+          <button class="btn small" onclick="addChecklistItem('${a.id}')">Add</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('areaModalBackdrop').classList.remove('hidden');
+}
+
+function closeAreaModal(){
+  currentModalAreaId = null;
+  const backdrop = document.getElementById('areaModalBackdrop');
+  if(backdrop) backdrop.classList.add('hidden');
+}
+function closeAreaModalIfBackdrop(e){
+  if(e.target.id === 'areaModalBackdrop') closeAreaModal();
+}
+
+// Refresh both the grid (summary) and the modal (if one is open) after any change.
+async function afterMutation(){
+  await renderAreaGrid();
+  if(currentModalAreaId){
+    await openAreaModal(currentModalAreaId);
+  }
+}
+
+// Shared checklist changes also need the top "Shared checklist" list refreshed.
+async function afterSharedMutation(){
+  const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
+  const listEl = document.getElementById('sharedChecklistList');
+  if(listEl) listEl.innerHTML = renderTodoRows(sharedItems || []);
+  await afterMutation();
 }
 
 function renderTodoRows(items){
@@ -621,7 +735,7 @@ async function addChecklistItem(areaId){
   });
   input.value = '';
   dueInput.value = '';
-  await renderAreaManagement();
+  if(areaId) await afterMutation(); else await afterSharedMutation();
 }
 
 function showEditTodo(itemId){
@@ -637,14 +751,16 @@ async function saveTodoEdit(itemId){
   const label = document.getElementById(`todo-edit-label-${itemId}`).value.trim();
   const due_date = document.getElementById(`todo-edit-due-${itemId}`).value || null;
   if(!label){ alert('To-do text cannot be empty'); return; }
+  const { data: existingItem } = await sb.from('checklist_item').select('area_id').eq('id', itemId).single();
   await sb.from('checklist_item').update({ label, due_date }).eq('id', itemId);
-  await renderAreaManagement();
+  if(existingItem && existingItem.area_id) await afterMutation(); else await afterSharedMutation();
 }
 
 async function deleteChecklistItem(itemId){
   if(!confirm('Delete this to-do item? Any status/comments recorded against it will also be removed.')) return;
+  const { data: existingItem } = await sb.from('checklist_item').select('area_id').eq('id', itemId).single();
   await sb.from('checklist_item').delete().eq('id', itemId);
-  await renderAreaManagement();
+  if(existingItem && existingItem.area_id) await afterMutation(); else await afterSharedMutation();
 }
 
 function showEditArea(areaId){
@@ -661,13 +777,14 @@ async function saveAreaEdit(areaId){
   const temple_list = document.getElementById(`edit-temples-${areaId}`).value.trim();
   if(!area_name){ alert('Area name cannot be empty'); return; }
   await sb.from('area').update({ area_name, temple_list }).eq('id', areaId);
-  await renderAreaManagement();
+  await afterMutation();
 }
 
 async function deleteArea(areaId, areaName){
   if(!confirm(`Delete "${areaName}"? This also removes its incharge assignment, area-specific to-dos, and all recorded status/comments/photos for this area. This cannot be undone.`)) return;
   await sb.from('area').delete().eq('id', areaId);
-  await renderAreaManagement();
+  if(currentModalAreaId === areaId) closeAreaModal();
+  await renderAreaGrid();
 }
 
 async function createArea(){
@@ -675,7 +792,7 @@ async function createArea(){
   const temple_list = document.getElementById('newAreaTemples').value.trim();
   if(!area_name){ alert('Enter area name'); return; }
   await sb.from('area').insert({ event_id: adminActiveEventId, area_name, temple_list });
-  await renderAreaManagement();
+  await renderAreaGrid();
 }
 
 async function assignIncharge(areaId){
@@ -688,7 +805,7 @@ async function assignIncharge(areaId){
     .select().single();
   if(error){ alert(error.message); return; }
   await sendAssignmentEmail(data.id, /*silent*/ false);
-  await renderAreaManagement();
+  await afterMutation();
 }
 
 function showEditAssignment(areaId){
@@ -709,7 +826,7 @@ async function saveAssignmentEdit(areaId, assignmentId){
     .update({ incharge_name, incharge_email, helper_names })
     .eq('id', assignmentId);
   if(error){ alert(error.message); return; }
-  await renderAreaManagement();
+  await afterMutation();
   if(confirm('Details updated. Send a fresh assignment email to the (possibly new) incharge email now?')){
     await sendAssignmentEmail(assignmentId, false);
   }
@@ -728,6 +845,9 @@ async function sendAssignmentEmail(areaAssignmentId, silent){
   return { data, error };
 }
 
+// ============================================================
+// OVERVIEW TAB
+// ============================================================
 async function renderAdminOverview(){
   const el = document.getElementById('adminTabContent');
   if(!adminActiveEventId){
