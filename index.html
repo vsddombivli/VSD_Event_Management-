@@ -10,83 +10,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F3F1FB;
-    --surface:#FFFFFF;
-    --ink:#211B36;
-    --muted:#6B6580;
-    --line:#E7E3F5;
-    --purple:#7C3AED;
-    --purple-dark:#5B21B6;
-    --pink:#EC4899;
-    --blue:#2563EB;
-    --red:#EF4444;
-    --amber:#F59E0B;
-    --green:#10B981;
-    --radius:16px;
-    --shadow:0 4px 20px rgba(76,29,149,0.08);
-    --brand:linear-gradient(135deg,#7C3AED 0%,#EC4899 100%);
+    --bg:#F3F1FB; --surface:#FFFFFF; --ink:#211B36; --muted:#6B6580; --line:#E7E3F5;
+    --purple:#7C3AED; --purple-dark:#5B21B6; --pink:#EC4899; --blue:#2563EB;
+    --red:#EF4444; --amber:#F59E0B; --green:#10B981; --radius:16px;
+    --shadow:0 4px 20px rgba(76,29,149,0.08); --brand:linear-gradient(135deg,#7C3AED 0%,#EC4899 100%);
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0; font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:var(--bg); color:var(--ink); min-height:100vh;
-  }
-  header{
-    background:var(--brand); color:#fff; padding:20px 20px;
-    display:flex; align-items:center; justify-content:space-between;
-    position:sticky; top:0; z-index:10;
-    box-shadow:0 4px 24px rgba(124,58,237,.25);
-  }
+  body{margin:0; font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh;}
+  header{background:var(--brand); color:#fff; padding:20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; box-shadow:0 4px 24px rgba(124,58,237,.25);}
   header .brand{display:flex; align-items:center; gap:10px;}
   header .brand .dot{width:11px;height:11px;border-radius:50%;background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.25);}
-  header h1{font-size:17px; margin:0; font-weight:800; letter-spacing:.2px;}
+  header h1{font-size:17px; margin:0; font-weight:800;}
   header .sub{font-size:12px; opacity:.85; margin-top:2px;}
-  header button{
-    background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.4); color:#fff;
-    padding:7px 14px; border-radius:10px; font-size:13px; cursor:pointer; font-weight:600;
-  }
+  header button{background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.4); color:#fff; padding:7px 14px; border-radius:10px; font-size:13px; cursor:pointer; font-weight:600;}
   header button:hover{background:rgba(255,255,255,.28);}
   main{max-width:1080px; margin:0 auto; padding:20px 16px 60px;}
-  .card{
-    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-    padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
-  }
-  .card h2{margin:0 0 4px; font-size:16px; color:var(--ink); font-weight:800;}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:var(--shadow);}
+  .card h2{margin:0 0 4px; font-size:16px; font-weight:800;}
   .card .meta{font-size:12px; color:var(--muted); margin-bottom:12px;}
   label{display:block; font-size:12px; font-weight:700; color:var(--muted); margin:10px 0 4px;}
   input[type=text], input[type=email], input[type=date], textarea, select{
-    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px;
-    font-size:14px; background:#fff; color:var(--ink); font-family:inherit;
+    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; background:#fff; color:var(--ink); font-family:inherit;
   }
   input:focus, textarea:focus, select:focus{outline:none; border-color:var(--purple); box-shadow:0 0 0 3px rgba(124,58,237,.12);}
   textarea{min-height:60px; resize:vertical;}
-  .btn{
-    display:inline-block; background:var(--brand); color:#fff; border:none;
-    padding:10px 16px; border-radius:10px; font-size:14px; font-weight:700;
-    cursor:pointer; margin-top:10px; box-shadow:0 2px 10px rgba(124,58,237,.25);
-    transition:transform .12s ease, box-shadow .12s ease;
-  }
+  .btn{display:inline-block; background:var(--brand); color:#fff; border:none; padding:10px 16px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; margin-top:10px; box-shadow:0 2px 10px rgba(124,58,237,.25); transition:transform .12s ease, box-shadow .12s ease;}
   .btn:hover{transform:translateY(-1px); box-shadow:0 4px 14px rgba(124,58,237,.35);}
   .btn.secondary{background:#fff; color:var(--purple); border:1.5px solid var(--purple); box-shadow:none;}
   .btn.secondary:hover{background:#F5F0FF; transform:none;}
   .btn.small{padding:7px 12px; font-size:12px; margin-top:0;}
+  .btn.danger{color:var(--red); border:1.5px solid var(--red); background:#fff; box-shadow:none;}
+  .btn.danger:hover{background:#FEF2F2; transform:none;}
   .row{display:flex; gap:8px; flex-wrap:wrap;}
-  .checklist-item{
-    border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:#fff;
-  }
+  .checklist-item{border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:#fff;}
   .checklist-item.done{border-color:var(--green); background:#ECFDF5;}
   .checklist-item.partial{border-color:var(--amber); background:#FFFBEB;}
   .checklist-item .top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
   .checklist-item .label{font-size:14px; font-weight:700; flex:1;}
-  .status-select{
-    padding:6px 10px; border-radius:20px; border:1.5px solid var(--line); font-size:12px;
-    font-weight:700; background:#fff; cursor:pointer;
-  }
+  .status-select{padding:6px 10px; border-radius:20px; border:1.5px solid var(--line); font-size:12px; font-weight:700; background:#fff; cursor:pointer;}
   .status-select.st-done{color:var(--green); border-color:var(--green); background:#ECFDF5;}
   .status-select.st-partial{color:var(--amber); border-color:var(--amber); background:#FFFBEB;}
   .status-select.st-notdone{color:var(--muted); border-color:var(--line); background:#fff;}
-  .btn.danger{color:var(--red); border:1.5px solid var(--red); background:#fff; box-shadow:none;}
-  .btn.danger:hover{background:#FEF2F2; transform:none;}
   .area-actions{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .edit-form{border-top:1px solid var(--line); margin-top:10px; padding-top:10px;}
   .todo-row{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
@@ -112,13 +76,9 @@
   .chip.notdone{background:#EDEBF7; color:#6B6580;}
   .chip.na{background:transparent; color:#D8D3EE;}
   .muted{color:var(--muted); font-size:13px;}
-  .center{text-align:center;}
   .hidden{display:none !important;}
-  .tab-bar{display:flex; gap:4px; margin-bottom:16px; background:#fff; border-radius:14px; padding:4px; box-shadow:var(--shadow); max-width:340px;}
-  .tab-bar button{
-    flex:1; padding:10px; border-radius:10px; border:none; background:transparent;
-    font-size:13px; cursor:pointer; font-weight:700; color:var(--muted);
-  }
+  .tab-bar{display:flex; gap:4px; margin-bottom:16px; background:#fff; border-radius:14px; padding:4px; box-shadow:var(--shadow);}
+  .tab-bar button{flex:1; padding:10px; border-radius:10px; border:none; background:transparent; font-size:13px; cursor:pointer; font-weight:700; color:var(--muted); white-space:nowrap;}
   .tab-bar button.active{background:var(--brand); color:#fff; box-shadow:0 2px 8px rgba(124,58,237,.3);}
   .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px;}
   .kpi-card{border-radius:16px; padding:16px; color:#fff; box-shadow:var(--shadow);}
@@ -129,44 +89,25 @@
   .kpi-card.blue{background:linear-gradient(135deg,#2563EB,#60A5FA);}
   .kpi-card.green{background:linear-gradient(135deg,#059669,#34D399);}
   .kpi-card.red{background:linear-gradient(135deg,#DC2626,#F87171);}
-
-  /* ---------- Area grid (side-by-side summary cards) ---------- */
   .section-heading{display:flex; align-items:baseline; gap:8px; margin:22px 0 12px;}
   .section-heading h2{margin:0; font-size:15px; font-weight:800;}
   .area-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-bottom:8px;}
-  .area-grid-card{
-    background:#fff; border:1px solid var(--line); border-top:5px solid var(--line);
-    border-radius:14px; padding:14px; box-shadow:var(--shadow); cursor:pointer;
-    transition:transform .15s ease, box-shadow .15s ease; text-align:left;
-  }
+  .area-grid-card{background:#fff; border:1px solid var(--line); border-top:5px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; text-align:left;}
   .area-grid-card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(76,29,149,.16);}
   .area-grid-top{display:flex; align-items:center; gap:10px;}
   .area-grid-ring{flex-shrink:0; line-height:0;}
   .area-grid-title{flex:1; min-width:0;}
-  .area-grid-name{font-weight:800; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .area-grid-name{font-weight:800; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .area-grid-temples{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;}
   .area-grid-footer{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px;}
   .area-grid-count{font-size:11px; color:var(--muted); font-weight:800;}
-
-  /* ---------- Modal (area detail / management) ---------- */
-  .modal-backdrop{
-    position:fixed; inset:0; background:rgba(33,27,54,.55); backdrop-filter:blur(2px);
-    display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:100; overflow-y:auto;
-  }
-  .modal-panel{
-    background:var(--surface); border-radius:20px; max-width:520px; width:100%;
-    padding:22px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,.35); margin:auto;
-  }
-  .modal-close{
-    position:absolute; top:14px; right:14px; background:#F5F3FB; border:1px solid var(--line);
-    border-radius:50%; width:32px; height:32px; font-size:14px; cursor:pointer; color:var(--muted);
-  }
+  .modal-backdrop{position:fixed; inset:0; background:rgba(33,27,54,.55); backdrop-filter:blur(2px); display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:100; overflow-y:auto;}
+  .modal-panel{background:var(--surface); border-radius:20px; max-width:520px; width:100%; padding:22px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,.35); margin:auto;}
+  .modal-close{position:absolute; top:14px; right:14px; background:#F5F3FB; border:1px solid var(--line); border-radius:50%; width:32px; height:32px; font-size:14px; cursor:pointer; color:var(--muted);}
   .modal-close:hover{color:var(--red); border-color:var(--red); background:#FEF2F2;}
-
-  #loginScreen{
-    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
-    background:var(--brand);
-  }
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-weight:500; margin:6px 0; font-size:13px;}
+  .checkbox-row input{width:auto;}
+  #loginScreen{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; background:var(--brand);}
   #loginScreen .card{width:100%; max-width:360px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);}
   .flame{font-size:36px; margin-bottom:6px;}
   .msg{font-size:13px; padding:10px 12px; border-radius:10px; margin-top:10px; font-weight:600;}
@@ -191,10 +132,7 @@
   <header>
     <div class="brand">
       <div class="dot"></div>
-      <div>
-        <h1>VSD Event Dashboard</h1>
-        <div class="sub" id="whoami"></div>
-      </div>
+      <div><h1>VSD Event Dashboard</h1><div class="sub" id="whoami"></div></div>
     </div>
     <button onclick="signOut()">Sign out</button>
   </header>
@@ -202,26 +140,18 @@
 </div>
 
 <script>
-// ============================================================
-// CONFIG — fill these in after creating your Supabase project
-// Dashboard → Project Settings → API
-// ============================================================
-const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
-
-// Using a custom Postgres schema ("vsd") instead of the default "public".
-// It must also be added under Project Settings → API → Exposed schemas (see SETUP.md).
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  db: { schema: 'vsd' }
-});
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { db: { schema: 'vsd' } });
 
 let currentUser = null;
 let isAdmin = false;
+let adminActiveEventId = null;
 let currentModalAreaId = null;
+let peopleDirectory = [];   // global vsd.person cache, for name autocomplete
+let modalPeopleList = [];   // this event's incharge+member names, for responsible-person dropdowns
 
-function todayStr(){
-  return new Date().toISOString().slice(0,10);
-}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
 
 // ---------- VISUAL HELPERS ----------
 function bandColor(pct){
@@ -230,40 +160,80 @@ function bandColor(pct){
   if(pct > 0) return '#F59E0B';
   return '#EF4444';
 }
-
 function ringSvg(pct, size, stroke){
   size = size || 44; stroke = stroke || 4;
   const radius = (size - stroke) / 2;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (pct / 100) * circ;
   const color = bandColor(pct);
-  return `
-    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
       <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="#EDEBF7" stroke-width="${stroke}"/>
       <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="${color}" stroke-width="${stroke}"
         stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
         transform="rotate(-90 ${size/2} ${size/2})"/>
       <text x="50%" y="50%" text-anchor="middle" dy="0.35em" font-size="${size*0.26}" font-weight="800" fill="${color}" font-family="'Plus Jakarta Sans',sans-serif">${pct}%</text>
-    </svg>
-  `;
+    </svg>`;
 }
-
 async function getAreaStats(areaId, eventId){
   const { data: items } = await sb.from('checklist_item').select('id')
-    .eq('event_id', eventId)
-    .or(`area_id.is.null,area_id.eq.${areaId}`);
+    .eq('event_id', eventId).or(`area_id.is.null,area_id.eq.${areaId}`);
   const { data: statuses } = await sb.from('area_checklist_status').select('checklist_item_id,status').eq('area_id', areaId);
   const statusMap = {};
   (statuses || []).forEach(s => statusMap[s.checklist_item_id] = s.status);
   let score = 0, doneCount = 0;
   (items || []).forEach(it => {
     const st = statusMap[it.id] || 'Not Done';
-    if(st === 'Done'){ score += 1; doneCount += 1; }
-    else if(st === 'Partial') score += 0.5;
+    if(st === 'Done'){ score += 1; doneCount += 1; } else if(st === 'Partial') score += 0.5;
   });
   const total = items ? items.length : 0;
   const pct = total ? Math.round((score / total) * 100) : 0;
   return { pct, doneCount, total };
+}
+
+// ---------- PEOPLE DIRECTORY (autocomplete) ----------
+async function loadPeopleDirectory(){
+  const { data } = await sb.from('person').select('full_name,mobile,email').order('full_name');
+  peopleDirectory = data || [];
+}
+function peopleDatalist(id){
+  return `<datalist id="${id}">${peopleDirectory.map(p=>`<option value="${p.full_name.replace(/"/g,'&quot;')}">`).join('')}</datalist>`;
+}
+function autofillFromDirectory(nameInputId, mobileInputId, emailInputId){
+  const nameEl = document.getElementById(nameInputId);
+  if(!nameEl) return;
+  const name = nameEl.value.trim();
+  const match = peopleDirectory.find(p => p.full_name.toLowerCase() === name.toLowerCase());
+  if(match){
+    const mEl = document.getElementById(mobileInputId), eEl = document.getElementById(emailInputId);
+    if(mEl && match.mobile && !mEl.value) mEl.value = match.mobile;
+    if(eEl && match.email && !eEl.value) eEl.value = match.email;
+  }
+}
+async function upsertPerson(full_name, mobile, email){
+  if(!full_name) return;
+  const { data: existing } = await sb.from('person').select('id').ilike('full_name', full_name);
+  if(existing && existing.length){
+    await sb.from('person').update({ mobile: mobile || null, email: email || null }).eq('id', existing[0].id);
+  } else {
+    await sb.from('person').insert({ full_name, mobile: mobile || null, email: email || null });
+  }
+}
+async function getEventPeopleList(eventId){
+  const { data: units } = await sb.from('area').select('id').eq('event_id', eventId);
+  const unitIds = (units||[]).map(u=>u.id);
+  if(!unitIds.length) return [];
+  const { data: assignments } = await sb.from('area_assignment').select('incharge_name,incharge_email').in('area_id', unitIds);
+  const { data: members } = await sb.from('unit_member').select('member_name,email').in('area_id', unitIds);
+  const list = [];
+  (assignments||[]).forEach(a=>list.push({name:a.incharge_name, email:a.incharge_email}));
+  (members||[]).forEach(m=>list.push({name:m.member_name, email:m.email}));
+  const seen = new Set();
+  return list.filter(p=>{
+    const key = p.name.toLowerCase();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 // ---------- AUTH ----------
@@ -271,71 +241,53 @@ async function sendMagicLink(){
   const email = document.getElementById('loginEmail').value.trim();
   const msgEl = document.getElementById('loginMsg');
   if(!email){ msgEl.innerHTML = '<div class="msg err">Enter an email address.</div>'; return; }
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: window.location.href }
-  });
-  if(error){
-    msgEl.innerHTML = `<div class="msg err">${error.message}</div>`;
-  } else {
-    msgEl.innerHTML = '<div class="msg ok">Link sent. Check your email (and spam folder) and open it on this device.</div>';
-  }
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  if(error){ msgEl.innerHTML = `<div class="msg err">${error.message}</div>`; }
+  else { msgEl.innerHTML = '<div class="msg ok">Link sent. Check your email (and spam folder) and open it on this device.</div>'; }
 }
-
-async function signOut(){
-  await sb.auth.signOut();
-  window.location.reload();
-}
-
+async function signOut(){ await sb.auth.signOut(); window.location.reload(); }
 async function initAuth(){
   const { data: { session } } = await sb.auth.getSession();
-  if(session){
-    await onLoggedIn(session.user);
-  }
+  if(session){ await onLoggedIn(session.user); }
   sb.auth.onAuthStateChange(async (event, session) => {
-    if(session && !currentUser){
-      await onLoggedIn(session.user);
-    }
+    if(session && !currentUser){ await onLoggedIn(session.user); }
   });
 }
-
 async function onLoggedIn(user){
   currentUser = user;
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('whoami').textContent = user.email;
-
   const { data: adminRow } = await sb.from('admins').select('email').eq('email', user.email).maybeSingle();
   isAdmin = !!adminRow;
-
   if(isAdmin){ renderAdmin(); } else { renderIncharge(); }
 }
 
 // ============================================================
-// INCHARGE VIEW
+// INCHARGE VIEW (unchanged — works for both Area and Team units)
 // ============================================================
 async function renderIncharge(){
   const main = document.getElementById('mainContent');
   main.innerHTML = '<p class="muted">Loading your area...</p>';
-
   const { data: assignments, error } = await sb
     .from('area_assignment')
-    .select('id, incharge_name, helper_names, area:area_id(id, area_name, temple_list, event_id, event:event_id(name, event_date))')
+    .select('id, incharge_name, area:area_id(id, area_name, temple_list, unit_type, event_id, event:event_id(name, event_date))')
     .eq('incharge_email', currentUser.email);
 
   if(error || !assignments || assignments.length === 0){
-    main.innerHTML = '<div class="card"><p class="muted">No area is assigned to your email yet. Please check with the admin.</p></div>';
+    main.innerHTML = '<div class="card"><p class="muted">No area/team is assigned to your email yet. Please check with the admin.</p></div>';
     return;
   }
 
   main.innerHTML = '';
   for(const a of assignments){
+    const { data: members } = await sb.from('unit_member').select('*').eq('area_id', a.area.id).order('sort_order');
     const areaCard = document.createElement('div');
     areaCard.className = 'card';
     areaCard.innerHTML = `
-      <h2>${a.area.area_name}</h2>
-      <div class="meta">${a.area.event.name} · ${a.area.event.event_date} · Temples: ${a.area.temple_list || '-'}</div>
-      <div class="meta">Incharge: ${a.incharge_name}${a.helper_names ? ' · Helpers: ' + a.helper_names : ''}</div>
+      <h2>${a.area.area_name} <span class="tag-badge">${a.area.unit_type}</span></h2>
+      <div class="meta">${a.area.event.name} · ${a.area.event.event_date} · ${a.area.unit_type === 'Area' ? 'Temples' : 'Details'}: ${a.area.temple_list || '-'}</div>
+      <div class="meta">Incharge: ${a.incharge_name}${members && members.length ? ' · Team: ' + members.map(m=>m.member_name).join(', ') : ''}</div>
       <div class="progress-bar"><div id="prog-${a.area.id}" style="width:0%"></div></div>
       <div id="checklist-${a.area.id}" style="margin-top:14px;"></div>
     `;
@@ -346,33 +298,27 @@ async function renderIncharge(){
 
 async function loadChecklistForArea(areaId, eventId){
   const { data: items } = await sb.from('checklist_item').select('*')
-    .eq('event_id', eventId)
-    .or(`area_id.is.null,area_id.eq.${areaId}`)
-    .order('sort_order');
+    .eq('event_id', eventId).or(`area_id.is.null,area_id.eq.${areaId}`).order('sort_order');
   const { data: statuses } = await sb.from('area_checklist_status').select('*').eq('area_id', areaId);
-
   const statusMap = {};
   (statuses || []).forEach(s => statusMap[s.checklist_item_id] = s);
-
   const container = document.getElementById(`checklist-${areaId}`);
   container.innerHTML = '';
   let score = 0;
 
   (items || []).forEach(item => {
     const st = statusMap[item.id] || { status: 'Not Done', comment: '', photo_url: null };
-    if(st.status === 'Done') score += 1;
-    else if(st.status === 'Partial') score += 0.5;
-
+    if(st.status === 'Done') score += 1; else if(st.status === 'Partial') score += 0.5;
     const rowClass = st.status === 'Done' ? ' done' : (st.status === 'Partial' ? ' partial' : '');
     const selClass = st.status === 'Done' ? 'st-done' : (st.status === 'Partial' ? 'st-partial' : 'st-notdone');
     const overdue = item.due_date && st.status !== 'Done' && item.due_date < todayStr();
     const dueBadge = item.due_date ? `<span class="due-badge${overdue ? ' overdue' : ''}">Due: ${item.due_date}</span>` : '';
-
+    const respBadge = item.responsible_person_name ? `<span class="tag-badge">👤 ${item.responsible_person_name}</span>` : '';
     const div = document.createElement('div');
     div.className = 'checklist-item' + rowClass;
     div.innerHTML = `
       <div class="top">
-        <div class="label">${item.label}${item.area_id ? '<span class="tag-badge">this area only</span>' : ''}${dueBadge}</div>
+        <div class="label">${item.label}${item.area_id ? '<span class="tag-badge">this area only</span>' : ''}${dueBadge}${respBadge}</div>
         <select class="status-select ${selClass}" id="status-${areaId}-${item.id}" onchange="this.className='status-select ' + (this.value==='Done'?'st-done':this.value==='Partial'?'st-partial':'st-notdone')">
           <option value="Not Done" ${st.status==='Not Done'?'selected':''}>Not Done</option>
           <option value="Partial" ${st.status==='Partial'?'selected':''}>Partially Done</option>
@@ -384,9 +330,7 @@ async function loadChecklistForArea(areaId, eventId){
       <label>Photo (aangi / activity)</label>
       <input type="file" accept="image/*" id="file-${areaId}-${item.id}" />
       ${st.photo_url ? `<img class="photo-preview" src="${st.photo_url}" />` : ''}
-      <div class="row">
-        <button class="btn small" onclick="saveChecklistItem('${areaId}','${item.id}')">Save</button>
-      </div>
+      <div class="row"><button class="btn small" onclick="saveChecklistItem('${areaId}','${item.id}')">Save</button></div>
     `;
     container.appendChild(div);
   });
@@ -401,29 +345,15 @@ async function saveChecklistItem(areaId, itemId){
   const comment = document.getElementById(`comment-${areaId}-${itemId}`).value;
   const fileInput = document.getElementById(`file-${areaId}-${itemId}`);
   let photo_url = null;
-
   if(fileInput.files && fileInput.files[0]){
     const file = fileInput.files[0];
     const path = `${areaId}/${itemId}-${Date.now()}-${file.name}`;
     const { error: upErr } = await sb.storage.from('event-photos').upload(path, file);
-    if(!upErr){
-      const { data: pub } = sb.storage.from('event-photos').getPublicUrl(path);
-      photo_url = pub.publicUrl;
-    }
+    if(!upErr){ const { data: pub } = sb.storage.from('event-photos').getPublicUrl(path); photo_url = pub.publicUrl; }
   }
-
-  const updatePayload = {
-    area_id: areaId,
-    checklist_item_id: itemId,
-    status,
-    comment,
-    updated_by: currentUser.email,
-    updated_at: new Date().toISOString()
-  };
+  const updatePayload = { area_id: areaId, checklist_item_id: itemId, status, comment, updated_by: currentUser.email, updated_at: new Date().toISOString() };
   if(photo_url) updatePayload.photo_url = photo_url;
-
   await sb.from('area_checklist_status').upsert(updatePayload, { onConflict: 'area_id,checklist_item_id' });
-
   const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
   await loadChecklistForArea(areaId, areaRow.event_id);
 }
@@ -431,16 +361,14 @@ async function saveChecklistItem(areaId, itemId){
 // ============================================================
 // ADMIN VIEW
 // ============================================================
-let adminActiveEventId = null;
-
 async function renderAdmin(){
   const main = document.getElementById('mainContent');
   main.innerHTML = `
-    <div class="tab-bar">
-      <button id="tabSetup" class="active" onclick="showAdminTab('setup')">⚙️ Setup</button>
-      <button id="tabOverview" onclick="showAdminTab('overview')">📊 Overview</button>
+    <div class="tab-bar" style="max-width:280px;">
+      <button id="tabSetupTop" class="active" onclick="showTopTab('setup')">⚙️ Setup</button>
+      <button id="tabEventTop" onclick="showTopTab('event')">🎪 Event</button>
     </div>
-    <div id="adminTabContent"></div>
+    <div id="topTabContent"></div>
     <div id="areaModalBackdrop" class="modal-backdrop hidden" onclick="closeAreaModalIfBackdrop(event)">
       <div class="modal-panel" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closeAreaModal()">✕</button>
@@ -448,21 +376,18 @@ async function renderAdmin(){
       </div>
     </div>
   `;
-  await showAdminTab('setup');
+  await showTopTab('setup');
 }
 
-async function showAdminTab(tab){
-  document.getElementById('tabSetup').classList.toggle('active', tab === 'setup');
-  document.getElementById('tabOverview').classList.toggle('active', tab === 'overview');
-  if(tab === 'setup') await renderAdminSetup();
-  else await renderAdminOverview();
+async function showTopTab(tab){
+  document.getElementById('tabSetupTop').classList.toggle('active', tab === 'setup');
+  document.getElementById('tabEventTop').classList.toggle('active', tab === 'event');
+  if(tab === 'setup') renderSetupTop();
+  else await renderEventTab();
 }
 
-async function renderAdminSetup(){
-  const el = document.getElementById('adminTabContent');
-  const { data: events } = await sb.from('event').select('*').order('created_at', { ascending: false });
-
-  el.innerHTML = `
+function renderSetupTop(){
+  document.getElementById('topTabContent').innerHTML = `
     <div class="card">
       <h2>📅 Create event</h2>
       <label>Event name</label>
@@ -471,28 +396,16 @@ async function renderAdminSetup(){
       <input type="date" id="newEventDate" />
       <button class="btn" onclick="createNewEvent()">Create event (with default checklist)</button>
     </div>
-    <div class="card">
-      <h2>🎯 Select event</h2>
-      <select id="eventSelect" onchange="onEventSelect(this.value)">
-        <option value="">-- choose event --</option>
-        ${(events||[]).map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})</option>`).join('')}
-      </select>
-    </div>
-    <div id="areaManagement"></div>
+    <p class="muted">Once created, switch to the <b>Event</b> tab to select it and manage Areas, Teams, and to-dos.</p>
   `;
-
-  if(!adminActiveEventId && events && events.length) adminActiveEventId = events[0].id;
-  if(adminActiveEventId) await renderAreaManagement();
 }
 
 async function createNewEvent(){
   const name = document.getElementById('newEventName').value.trim();
   const date = document.getElementById('newEventDate').value;
   if(!name || !date){ alert('Enter event name and date'); return; }
-
   const { data: ev, error } = await sb.from('event').insert({ name, event_date: date }).select().single();
   if(error){ alert(error.message); return; }
-
   const defaultChecklist = [
     "Inform trustee regarding the event",
     "Sangh na board ma lakhvu (put notice on sangh board)",
@@ -505,72 +418,106 @@ async function createNewEvent(){
   ];
   const rows = defaultChecklist.map((label, i) => ({ event_id: ev.id, label, sort_order: i }));
   await sb.from('checklist_item').insert(rows);
-
   adminActiveEventId = ev.id;
-  await renderAdminSetup();
+  await showTopTab('event');
+}
+
+async function renderEventTab(){
+  const el = document.getElementById('topTabContent');
+  const { data: events } = await sb.from('event').select('*').order('created_at', { ascending: false });
+  if(!adminActiveEventId && events && events.length) adminActiveEventId = events[0].id;
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>🎯 Select event</h2>
+      <select id="eventSelect" onchange="onEventSelect(this.value)">
+        <option value="">-- choose event --</option>
+        ${(events||[]).map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})</option>`).join('')}
+      </select>
+    </div>
+    <div id="eventSubArea"></div>
+  `;
+
+  const subArea = document.getElementById('eventSubArea');
+  if(adminActiveEventId){
+    subArea.innerHTML = `
+      <div class="tab-bar" style="max-width:560px;">
+        <button id="subArea" class="active" onclick="showEventSubTab('area')">🏛️ Area</button>
+        <button id="subTeam" onclick="showEventSubTab('team')">👥 Team</button>
+        <button id="subShared" onclick="showEventSubTab('shared')">📋 Shared Tasks</button>
+        <button id="subOverview" onclick="showEventSubTab('overview')">📊 Overview</button>
+      </div>
+      <div id="eventSubTabContent"></div>
+    `;
+    await showEventSubTab('area');
+  } else {
+    subArea.innerHTML = '<p class="muted">Create or select an event above to continue.</p>';
+  }
 }
 
 async function onEventSelect(eventId){
   adminActiveEventId = eventId || null;
   closeAreaModal();
-  await renderAreaManagement();
+  await renderEventTab();
 }
 
-// ---------- Page-level Setup card (shared checklist, add area, area grid) ----------
-async function renderAreaManagement(){
-  const el = document.getElementById('areaManagement');
-  if(!adminActiveEventId){ el.innerHTML = ''; return; }
+async function showEventSubTab(tab){
+  const map = { area:'subArea', team:'subTeam', shared:'subShared', overview:'subOverview' };
+  Object.keys(map).forEach(k=>{
+    const btn = document.getElementById(map[k]);
+    if(btn) btn.classList.toggle('active', k === tab);
+  });
+  if(tab === 'area') await renderUnitTab('Area');
+  else if(tab === 'team') await renderUnitTab('Team');
+  else if(tab === 'shared') await renderSharedTasksTab();
+  else if(tab === 'overview') await renderAdminOverview();
+}
 
-  const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
-
+// ---------- Area / Team tab ----------
+async function renderUnitTab(unitType){
+  const el = document.getElementById('eventSubTabContent');
+  const detailLabel = unitType === 'Area' ? 'Temples in this area' : 'Description (what this team handles)';
+  const detailPlaceholder = unitType === 'Area' ? 'e.g. Temple A, Temple B, Temple C' : 'e.g. Handles aangi and flower decoration for all zones';
   el.innerHTML = `
     <div class="card">
-      <h2>📋 Shared checklist <span class="tag-badge">applies to every area</span></h2>
-      <div id="sharedChecklistList">${renderTodoRows(sharedItems || [])}</div>
-      <label>Add shared to-do</label>
-      <div class="row">
-        <input type="text" id="newSharedTodo" placeholder="e.g. Confirm flower quantity with vendor" style="flex:2;min-width:160px;" />
-        <input type="date" id="newSharedTodoDue" style="flex:1;min-width:130px;" />
-        <button class="btn small" onclick="addChecklistItem(null)">Add</button>
-      </div>
+      <h2>➕ Add ${unitType}</h2>
+      <label>${unitType} name</label>
+      <input type="text" id="newUnitName" placeholder="e.g. ${unitType==='Area' ? 'Zone 3' : 'Decoration Team'}" />
+      <label>${detailLabel}</label>
+      <textarea id="newUnitDetails" placeholder="${detailPlaceholder}"></textarea>
+      <button class="btn" onclick="createUnit('${unitType}')">Add ${unitType}</button>
     </div>
-    <div class="card">
-      <h2>➕ Add area</h2>
-      <label>Area name</label>
-      <input type="text" id="newAreaName" placeholder="e.g. Zone 3" />
-      <label>Temples in this area</label>
-      <textarea id="newAreaTemples" placeholder="e.g. Temple A, Temple B, Temple C"></textarea>
-      <button class="btn" onclick="createArea()">Add area</button>
-    </div>
-    <div class="section-heading">
-      <h2>🗺️ All areas</h2>
-      <span class="muted">tap a card to manage it</span>
-    </div>
-    <div class="area-grid" id="areaGridContainer"><p class="muted">Loading...</p></div>
+    <div class="section-heading"><h2>${unitType==='Area' ? '🏛️' : '👥'} All ${unitType}s</h2><span class="muted">tap a card to manage it</span></div>
+    <div class="area-grid" id="unitGridContainer"><p class="muted">Loading...</p></div>
   `;
-
-  await renderAreaGrid();
+  await renderUnitGrid(unitType);
 }
 
-// ---------- Compact side-by-side area cards ----------
-async function renderAreaGrid(){
-  const gridEl = document.getElementById('areaGridContainer');
+async function createUnit(unitType){
+  const area_name = document.getElementById('newUnitName').value.trim();
+  const temple_list = document.getElementById('newUnitDetails').value.trim();
+  if(!area_name){ alert(`Enter ${unitType.toLowerCase()} name`); return; }
+  await sb.from('area').insert({ event_id: adminActiveEventId, area_name, temple_list, unit_type: unitType });
+  await renderUnitGrid(unitType);
+}
+
+async function renderUnitGrid(unitType){
+  const gridEl = document.getElementById('unitGridContainer');
   if(!gridEl) return;
+  const { data: units } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).eq('unit_type', unitType).order('sort_order');
 
-  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
-
-  if(!areas || !areas.length){
-    gridEl.innerHTML = '<p class="muted">No areas yet — add one above.</p>';
+  if(!units || !units.length){
+    gridEl.innerHTML = `<p class="muted">No ${unitType.toLowerCase()}s yet — add one above.</p>`;
     return;
   }
 
-  gridEl.innerHTML = areas.map(a => `
+  gridEl.innerHTML = units.map(a => `
     <div class="area-grid-card" id="grid-card-${a.id}" onclick="openAreaModal('${a.id}')">
       <div class="area-grid-top">
         <span class="area-grid-ring" id="grid-ring-${a.id}"></span>
         <div class="area-grid-title">
           <div class="area-grid-name">${a.area_name}</div>
-          <div class="area-grid-temples">${a.temple_list || 'No temples listed'}</div>
+          <div class="area-grid-temples">${a.temple_list || (unitType==='Area' ? 'No temples listed' : 'No description')}</div>
         </div>
       </div>
       <div class="area-grid-footer">
@@ -582,7 +529,7 @@ async function renderAreaGrid(){
     </div>
   `).join('');
 
-  for(const a of areas){
+  for(const a of units){
     const stats = await getAreaStats(a.id, adminActiveEventId);
     const ringEl = document.getElementById(`grid-ring-${a.id}`);
     if(ringEl) ringEl.innerHTML = ringSvg(stats.pct, 46, 5);
@@ -593,40 +540,70 @@ async function renderAreaGrid(){
   }
 }
 
-// ---------- Modal: full management for one area ----------
+function activeUnitType(){
+  const btn = document.getElementById('subArea');
+  return (btn && btn.classList.contains('active')) ? 'Area' : 'Team';
+}
+
+async function afterMutation(){
+  if(document.getElementById('unitGridContainer')){
+    await renderUnitGrid(activeUnitType());
+  }
+  if(currentModalAreaId){
+    await openAreaModal(currentModalAreaId);
+  }
+}
+
+async function afterSharedMutation(){
+  const listEl = document.getElementById('sharedChecklistList');
+  if(listEl){
+    const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
+    listEl.innerHTML = renderTodoRows(sharedItems || []);
+  }
+  await afterMutation();
+}
+
+// ---------- Modal: full management for one Area/Team ----------
 async function openAreaModal(areaId){
   currentModalAreaId = areaId;
   const { data: a } = await sb.from('area').select('*, area_assignment(*)').eq('id', areaId).single();
   const { data: areaItems } = await sb.from('checklist_item').select('*').eq('area_id', areaId).order('sort_order');
+  const { data: members } = await sb.from('unit_member').select('*').eq('area_id', areaId).order('sort_order');
   const stats = await getAreaStats(a.id, a.event_id);
+  await loadPeopleDirectory();
+  modalPeopleList = await getEventPeopleList(a.event_id);
 
-  const modalContent = document.getElementById('areaModalContent');
-  modalContent.innerHTML = `
+  const unitType = a.unit_type || 'Area';
+  const detailLabel = unitType === 'Area' ? 'Temples' : 'Description';
+
+  document.getElementById('areaModalContent').innerHTML = `
     <div id="area-view-${a.id}">
       <div class="area-actions">
         <span class="area-ring">${ringSvg(stats.pct, 46, 5)}</span>
-        <h2 style="flex:1;margin:0;">${a.area_name}</h2>
+        <h2 style="flex:1;margin:0;">${a.area_name} <span class="tag-badge">${unitType}</span></h2>
       </div>
       <div class="row">
-        <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit area</button>
-        <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete area</button>
+        <button class="btn small secondary" onclick="showEditArea('${a.id}')">Edit ${unitType.toLowerCase()}</button>
+        <button class="btn small danger" onclick="deleteArea('${a.id}','${a.area_name.replace(/'/g, "\\'")}')">Delete ${unitType.toLowerCase()}</button>
       </div>
-      <div class="meta" style="margin-top:10px;">Temples: ${a.temple_list || '-'}</div>
+      <div class="meta" style="margin-top:10px;">${detailLabel}: ${a.temple_list || '-'}</div>
+
       ${a.area_assignment && a.area_assignment.length ? `
         <div id="assign-view-${a.id}">
-          <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email})${a.area_assignment[0].helper_names ? ' · Helpers: ' + a.area_assignment[0].helper_names : ''}</p>
+          <p class="muted">Incharge: <b>${a.area_assignment[0].incharge_name}</b> (${a.area_assignment[0].incharge_email}${a.area_assignment[0].incharge_mobile ? ', ' + a.area_assignment[0].incharge_mobile : ''})</p>
           <div class="row">
-            <button class="btn small secondary" onclick="showEditAssignment('${a.id}')">Edit incharge / team</button>
+            <button class="btn small secondary" onclick="showEditAssignment('${a.id}')">Edit incharge</button>
             <button class="btn small secondary" onclick="sendAssignmentEmail('${a.area_assignment[0].id}', false)">Resend assignment email</button>
           </div>
         </div>
         <div id="assign-edit-${a.id}" class="hidden edit-form">
           <label>Incharge name</label>
-          <input type="text" id="edit-ic-name-${a.id}" value="${a.area_assignment[0].incharge_name.replace(/"/g,'&quot;')}" />
+          <input type="text" id="edit-ic-name-${a.id}" list="dl-edit-ic-name-${a.id}" value="${a.area_assignment[0].incharge_name.replace(/"/g,'&quot;')}" oninput="autofillFromDirectory('edit-ic-name-${a.id}','edit-ic-mobile-${a.id}','edit-ic-email-${a.id}')" />
+          ${peopleDatalist('dl-edit-ic-name-' + a.id)}
+          <label>Incharge mobile</label>
+          <input type="text" id="edit-ic-mobile-${a.id}" value="${(a.area_assignment[0].incharge_mobile||'').replace(/"/g,'&quot;')}" placeholder="10-digit mobile" />
           <label>Incharge email</label>
           <input type="email" id="edit-ic-email-${a.id}" value="${a.area_assignment[0].incharge_email.replace(/"/g,'&quot;')}" />
-          <label>Helper names</label>
-          <input type="text" id="edit-ic-helpers-${a.id}" value="${(a.area_assignment[0].helper_names || '').replace(/"/g,'&quot;')}" placeholder="e.g. Amit, Kunal" />
           <div class="row">
             <button class="btn small" onclick="saveAssignmentEdit('${a.id}','${a.area_assignment[0].id}')">Save</button>
             <button class="btn small secondary" onclick="hideEditAssignment('${a.id}')">Cancel</button>
@@ -634,31 +611,51 @@ async function openAreaModal(areaId){
         </div>
       ` : `
         <label>Incharge name</label>
-        <input type="text" id="ic-name-${a.id}" placeholder="Full name" />
+        <input type="text" id="ic-name-${a.id}" list="dl-ic-name-${a.id}" placeholder="Full name" oninput="autofillFromDirectory('ic-name-${a.id}','ic-mobile-${a.id}','ic-email-${a.id}')" />
+        ${peopleDatalist('dl-ic-name-' + a.id)}
+        <label>Incharge mobile</label>
+        <input type="text" id="ic-mobile-${a.id}" placeholder="10-digit mobile" />
         <label>Incharge email</label>
         <input type="email" id="ic-email-${a.id}" placeholder="email@example.com" />
-        <label>Helper names (optional)</label>
-        <input type="text" id="ic-helpers-${a.id}" placeholder="e.g. Amit, Kunal" />
         <button class="btn small" onclick="assignIncharge('${a.id}')">Assign incharge</button>
       `}
+
       <div id="area-edit-${a.id}" class="hidden edit-form">
-        <label>Area name</label>
+        <label>${unitType} name</label>
         <input type="text" id="edit-name-${a.id}" value="${a.area_name.replace(/"/g,'&quot;')}" />
-        <label>Temples in this area</label>
+        <label>${detailLabel}</label>
         <textarea id="edit-temples-${a.id}">${a.temple_list || ''}</textarea>
         <div class="row">
           <button class="btn small" onclick="saveAreaEdit('${a.id}')">Save</button>
           <button class="btn small secondary" onclick="hideEditArea('${a.id}')">Cancel</button>
         </div>
       </div>
+
       <div class="edit-form">
-        <label style="margin-top:0;">To-do list for this area only</label>
+        <label style="margin-top:0;">Team members</label>
+        <div id="memberList-${a.id}">${renderMemberRows(members || [])}</div>
+        <div class="row">
+          <input type="text" id="newMemberName-${a.id}" list="dl-member-${a.id}" placeholder="Member name" style="flex:2;min-width:120px;" oninput="autofillFromDirectory('newMemberName-${a.id}','newMemberMobile-${a.id}','newMemberEmail-${a.id}')" />
+          ${peopleDatalist('dl-member-' + a.id)}
+          <input type="text" id="newMemberMobile-${a.id}" placeholder="Mobile" style="flex:1;min-width:100px;" />
+          <input type="email" id="newMemberEmail-${a.id}" placeholder="Email (optional)" style="flex:1;min-width:120px;" />
+          <button class="btn small" onclick="addUnitMember('${a.id}')">Add</button>
+        </div>
+      </div>
+
+      <div class="edit-form">
+        <label style="margin-top:0;">To-do list for this ${unitType.toLowerCase()} only</label>
         <div id="areaTodoList-${a.id}">${renderTodoRows(areaItems || [])}</div>
         <div class="row">
-          <input type="text" id="newAreaTodo-${a.id}" placeholder="e.g. Extra flowers for this zone's Saturday puja" style="flex:2;min-width:160px;" />
-          <input type="date" id="newAreaTodoDue-${a.id}" style="flex:1;min-width:130px;" />
-          <button class="btn small" onclick="addChecklistItem('${a.id}')">Add</button>
+          <input type="text" id="newAreaTodo-${a.id}" placeholder="Task name" style="flex:2;min-width:140px;" />
+          <input type="date" id="newAreaTodoDue-${a.id}" style="flex:1;min-width:120px;" />
         </div>
+        <label>Responsible person (optional)</label>
+        <select id="newAreaTodoResp-${a.id}">
+          <option value="">-- none --</option>
+          ${modalPeopleList.map(p=>`<option value="${p.name}|${p.email||''}">${p.name}</option>`).join('')}
+        </select>
+        <button class="btn small" onclick="addChecklistItem('${a.id}')">Add to-do</button>
       </div>
     </div>
   `;
@@ -671,32 +668,43 @@ function closeAreaModal(){
   const backdrop = document.getElementById('areaModalBackdrop');
   if(backdrop) backdrop.classList.add('hidden');
 }
-function closeAreaModalIfBackdrop(e){
-  if(e.target.id === 'areaModalBackdrop') closeAreaModal();
-}
+function closeAreaModalIfBackdrop(e){ if(e.target.id === 'areaModalBackdrop') closeAreaModal(); }
 
-// Refresh both the grid (summary) and the modal (if one is open) after any change.
-async function afterMutation(){
-  await renderAreaGrid();
-  if(currentModalAreaId){
-    await openAreaModal(currentModalAreaId);
-  }
+// ---------- Team members ----------
+function renderMemberRows(members){
+  if(!members || !members.length) return '<p class="muted" style="margin:4px 0;">No members added yet.</p>';
+  return members.map(m => `
+    <div class="todo-row">
+      <div class="todo-label">${m.member_name}${m.mobile ? ' · ' + m.mobile : ''}${m.email ? ' · ' + m.email : ''}</div>
+      <button class="del-icon" onclick="deleteUnitMember('${m.id}')">Delete</button>
+    </div>
+  `).join('');
 }
-
-// Shared checklist changes also need the top "Shared checklist" list refreshed.
-async function afterSharedMutation(){
-  const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
-  const listEl = document.getElementById('sharedChecklistList');
-  if(listEl) listEl.innerHTML = renderTodoRows(sharedItems || []);
+async function addUnitMember(areaId){
+  const name = document.getElementById(`newMemberName-${areaId}`).value.trim();
+  const mobile = document.getElementById(`newMemberMobile-${areaId}`).value.trim();
+  const email = document.getElementById(`newMemberEmail-${areaId}`).value.trim();
+  if(!name){ alert('Enter member name'); return; }
+  await sb.from('unit_member').insert({ area_id: areaId, member_name: name, mobile: mobile || null, email: email || null });
+  await upsertPerson(name, mobile, email);
+  await afterMutation();
+}
+async function deleteUnitMember(memberId){
+  if(!confirm('Remove this member?')) return;
+  await sb.from('unit_member').delete().eq('id', memberId);
   await afterMutation();
 }
 
+// ---------- To-do rows (shared across shared-tasks list, area modal, etc.) ----------
 function renderTodoRows(items){
   if(!items || !items.length) return '<p class="muted" style="margin:4px 0;">None yet.</p>';
   return items.map(it => `
     <div id="todo-view-${it.id}">
       <div class="todo-row">
-        <div class="todo-label">${it.label}${it.due_date ? `<span class="due-badge${it.due_date < todayStr() ? ' overdue' : ''}">Due: ${it.due_date}</span>` : ''}</div>
+        <div class="todo-label">${it.label}
+          ${it.due_date ? `<span class="due-badge${it.due_date < todayStr() ? ' overdue' : ''}">Due: ${it.due_date}</span>` : ''}
+          ${it.responsible_person_name ? `<span class="tag-badge">👤 ${it.responsible_person_name}</span>` : ''}
+        </div>
         <button class="edit-icon" onclick="showEditTodo('${it.id}')">Edit</button>
         <button class="del-icon" onclick="deleteChecklistItem('${it.id}')">Delete</button>
       </div>
@@ -706,6 +714,11 @@ function renderTodoRows(items){
       <input type="text" id="todo-edit-label-${it.id}" value="${it.label.replace(/"/g,'&quot;')}" />
       <label>Due date (optional)</label>
       <input type="date" id="todo-edit-due-${it.id}" value="${it.due_date || ''}" />
+      <label>Responsible person</label>
+      <select id="todo-edit-resp-${it.id}">
+        <option value="">-- none --</option>
+        ${modalPeopleList.map(p=>`<option value="${p.name}|${p.email||''}" ${it.responsible_person_name===p.name?'selected':''}>${p.name}</option>`).join('')}
+      </select>
       <div class="row">
         <button class="btn small" onclick="saveTodoEdit('${it.id}')">Save</button>
         <button class="btn small secondary" onclick="hideEditTodo('${it.id}')">Cancel</button>
@@ -717,24 +730,23 @@ function renderTodoRows(items){
 async function addChecklistItem(areaId){
   const inputId = areaId ? `newAreaTodo-${areaId}` : 'newSharedTodo';
   const dueId = areaId ? `newAreaTodoDue-${areaId}` : 'newSharedTodoDue';
+  const respId = areaId ? `newAreaTodoResp-${areaId}` : 'newSharedTodoResp';
   const input = document.getElementById(inputId);
   const dueInput = document.getElementById(dueId);
+  const respSelect = document.getElementById(respId);
   const label = input.value.trim();
   const due_date = dueInput.value || null;
+  const respRaw = respSelect ? respSelect.value : '';
+  const [respName, respEmail] = respRaw ? respRaw.split('|') : [null, null];
   if(!label) return;
   const { data: existing } = await sb.from('checklist_item').select('sort_order')
-    .eq('event_id', adminActiveEventId)
-    .order('sort_order', { ascending: false }).limit(1);
+    .eq('event_id', adminActiveEventId).order('sort_order', { ascending: false }).limit(1);
   const nextOrder = existing && existing.length ? existing[0].sort_order + 1 : 0;
   await sb.from('checklist_item').insert({
-    event_id: adminActiveEventId,
-    area_id: areaId || null,
-    label,
-    due_date,
-    sort_order: nextOrder
+    event_id: adminActiveEventId, area_id: areaId || null, label, due_date,
+    responsible_person_name: respName || null, responsible_person_email: respEmail || null, sort_order: nextOrder
   });
-  input.value = '';
-  dueInput.value = '';
+  input.value = ''; dueInput.value = ''; if(respSelect) respSelect.value = '';
   if(areaId) await afterMutation(); else await afterSharedMutation();
 }
 
@@ -746,16 +758,17 @@ function hideEditTodo(itemId){
   document.getElementById(`todo-view-${itemId}`).classList.remove('hidden');
   document.getElementById(`todo-edit-${itemId}`).classList.add('hidden');
 }
-
 async function saveTodoEdit(itemId){
   const label = document.getElementById(`todo-edit-label-${itemId}`).value.trim();
   const due_date = document.getElementById(`todo-edit-due-${itemId}`).value || null;
+  const respSelect = document.getElementById(`todo-edit-resp-${itemId}`);
+  const respRaw = respSelect ? respSelect.value : '';
+  const [respName, respEmail] = respRaw ? respRaw.split('|') : [null, null];
   if(!label){ alert('To-do text cannot be empty'); return; }
   const { data: existingItem } = await sb.from('checklist_item').select('area_id').eq('id', itemId).single();
-  await sb.from('checklist_item').update({ label, due_date }).eq('id', itemId);
+  await sb.from('checklist_item').update({ label, due_date, responsible_person_name: respName || null, responsible_person_email: respEmail || null }).eq('id', itemId);
   if(existingItem && existingItem.area_id) await afterMutation(); else await afterSharedMutation();
 }
-
 async function deleteChecklistItem(itemId){
   if(!confirm('Delete this to-do item? Any status/comments recorded against it will also be removed.')) return;
   const { data: existingItem } = await sb.from('checklist_item').select('area_id').eq('id', itemId).single();
@@ -763,6 +776,7 @@ async function deleteChecklistItem(itemId){
   if(existingItem && existingItem.area_id) await afterMutation(); else await afterSharedMutation();
 }
 
+// ---------- Area/Team edit + delete ----------
 function showEditArea(areaId){
   document.getElementById(`area-view-${areaId}`).classList.add('hidden');
   document.getElementById(`area-edit-${areaId}`).classList.remove('hidden');
@@ -771,43 +785,34 @@ function hideEditArea(areaId){
   document.getElementById(`area-view-${areaId}`).classList.remove('hidden');
   document.getElementById(`area-edit-${areaId}`).classList.add('hidden');
 }
-
 async function saveAreaEdit(areaId){
   const area_name = document.getElementById(`edit-name-${areaId}`).value.trim();
   const temple_list = document.getElementById(`edit-temples-${areaId}`).value.trim();
-  if(!area_name){ alert('Area name cannot be empty'); return; }
+  if(!area_name){ alert('Name cannot be empty'); return; }
   await sb.from('area').update({ area_name, temple_list }).eq('id', areaId);
   await afterMutation();
 }
-
 async function deleteArea(areaId, areaName){
-  if(!confirm(`Delete "${areaName}"? This also removes its incharge assignment, area-specific to-dos, and all recorded status/comments/photos for this area. This cannot be undone.`)) return;
+  if(!confirm(`Delete "${areaName}"? This also removes its incharge assignment, members, area-specific to-dos, and all recorded status/comments/photos. This cannot be undone.`)) return;
   await sb.from('area').delete().eq('id', areaId);
   if(currentModalAreaId === areaId) closeAreaModal();
-  await renderAreaGrid();
-}
-
-async function createArea(){
-  const area_name = document.getElementById('newAreaName').value.trim();
-  const temple_list = document.getElementById('newAreaTemples').value.trim();
-  if(!area_name){ alert('Enter area name'); return; }
-  await sb.from('area').insert({ event_id: adminActiveEventId, area_name, temple_list });
-  await renderAreaGrid();
-}
-
-async function assignIncharge(areaId){
-  const incharge_name = document.getElementById(`ic-name-${areaId}`).value.trim();
-  const incharge_email = document.getElementById(`ic-email-${areaId}`).value.trim();
-  const helper_names = document.getElementById(`ic-helpers-${areaId}`).value.trim();
-  if(!incharge_name || !incharge_email){ alert('Enter incharge name and email'); return; }
-  const { data, error } = await sb.from('area_assignment')
-    .insert({ area_id: areaId, incharge_name, incharge_email, helper_names })
-    .select().single();
-  if(error){ alert(error.message); return; }
-  await sendAssignmentEmail(data.id, /*silent*/ false);
   await afterMutation();
 }
 
+// ---------- Incharge assignment ----------
+async function assignIncharge(areaId){
+  const incharge_name = document.getElementById(`ic-name-${areaId}`).value.trim();
+  const incharge_mobile = document.getElementById(`ic-mobile-${areaId}`).value.trim();
+  const incharge_email = document.getElementById(`ic-email-${areaId}`).value.trim();
+  if(!incharge_name || !incharge_email){ alert('Enter incharge name and email'); return; }
+  const { data, error } = await sb.from('area_assignment')
+    .insert({ area_id: areaId, incharge_name, incharge_email, incharge_mobile })
+    .select().single();
+  if(error){ alert(error.message); return; }
+  await upsertPerson(incharge_name, incharge_mobile, incharge_email);
+  await sendAssignmentEmail(data.id, false);
+  await afterMutation();
+}
 function showEditAssignment(areaId){
   document.getElementById(`assign-view-${areaId}`).classList.add('hidden');
   document.getElementById(`assign-edit-${areaId}`).classList.remove('hidden');
@@ -816,44 +821,98 @@ function hideEditAssignment(areaId){
   document.getElementById(`assign-view-${areaId}`).classList.remove('hidden');
   document.getElementById(`assign-edit-${areaId}`).classList.add('hidden');
 }
-
 async function saveAssignmentEdit(areaId, assignmentId){
   const incharge_name = document.getElementById(`edit-ic-name-${areaId}`).value.trim();
+  const incharge_mobile = document.getElementById(`edit-ic-mobile-${areaId}`).value.trim();
   const incharge_email = document.getElementById(`edit-ic-email-${areaId}`).value.trim();
-  const helper_names = document.getElementById(`edit-ic-helpers-${areaId}`).value.trim();
   if(!incharge_name || !incharge_email){ alert('Enter incharge name and email'); return; }
-  const { error } = await sb.from('area_assignment')
-    .update({ incharge_name, incharge_email, helper_names })
-    .eq('id', assignmentId);
+  const { error } = await sb.from('area_assignment').update({ incharge_name, incharge_email, incharge_mobile }).eq('id', assignmentId);
   if(error){ alert(error.message); return; }
+  await upsertPerson(incharge_name, incharge_mobile, incharge_email);
   await afterMutation();
   if(confirm('Details updated. Send a fresh assignment email to the (possibly new) incharge email now?')){
     await sendAssignmentEmail(assignmentId, false);
   }
 }
-
 async function sendAssignmentEmail(areaAssignmentId, silent){
-  const { data, error } = await sb.functions.invoke('send-notification', {
-    body: { type: 'TEAM_ASSIGNMENT', area_assignment_id: areaAssignmentId }
-  });
+  const { data, error } = await sb.functions.invoke('send-notification', { body: { type: 'TEAM_ASSIGNMENT', area_assignment_id: areaAssignmentId } });
   if(error){
     console.error('Email send failed', error);
     if(!silent) alert('Assignment saved, but the email failed to send. Check the Edge Function logs / Resend setup.');
-  } else if(!silent){
-    alert('Assignment email sent.');
-  }
+  } else if(!silent){ alert('Assignment email sent.'); }
   return { data, error };
 }
 
-// ============================================================
-// OVERVIEW TAB
-// ============================================================
+// ---------- Shared Tasks tab ----------
+async function renderSharedTasksTab(){
+  const el = document.getElementById('eventSubTabContent');
+  const { data: sharedItems } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).is('area_id', null).order('sort_order');
+  const { data: units } = await sb.from('area').select('id,area_name,unit_type').eq('event_id', adminActiveEventId).order('sort_order');
+  modalPeopleList = await getEventPeopleList(adminActiveEventId);
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>🔗 Applies to every Area &amp; Team automatically</h2>
+      <div id="sharedChecklistList">${renderTodoRows(sharedItems || [])}</div>
+      <label>Task name</label>
+      <input type="text" id="newSharedTodo" placeholder="e.g. Confirm flower quantity with vendor" />
+      <label>Due date (optional)</label>
+      <input type="date" id="newSharedTodoDue" />
+      <label>Responsible person (optional)</label>
+      <select id="newSharedTodoResp">
+        <option value="">-- none --</option>
+        ${modalPeopleList.map(p=>`<option value="${p.name}|${p.email||''}">${p.name}</option>`).join('')}
+      </select>
+      <button class="btn small" onclick="addChecklistItem(null)">Add (applies to all)</button>
+    </div>
+    <div class="card">
+      <h2>📋 Copy a task to selected Areas / Teams</h2>
+      <p class="muted">Creates an independent copy in each one you pick — edit or complete each copy separately afterward.</p>
+      <label>Task name</label>
+      <input type="text" id="sharedTaskName" placeholder="e.g. Extra flowers for Saturday evening aarti" />
+      <label>Due date (optional)</label>
+      <input type="date" id="sharedTaskDue" />
+      <label>Responsible person (optional)</label>
+      <select id="sharedTaskResponsible">
+        <option value="">-- none --</option>
+        ${modalPeopleList.map(p=>`<option value="${p.name}|${p.email||''}">${p.name}</option>`).join('')}
+      </select>
+      <label>Copy to</label>
+      <div style="margin:6px 0;">
+        ${(units||[]).map(u=>`
+          <label class="checkbox-row">
+            <input type="checkbox" class="sharedTaskUnitCheck" value="${u.id}">
+            ${u.area_name} <span class="tag-badge">${u.unit_type}</span>
+          </label>
+        `).join('') || '<p class="muted">No areas/teams yet.</p>'}
+      </div>
+      <button class="btn" onclick="createSharedTaskCopies()">Copy task to selected</button>
+    </div>
+  `;
+}
+
+async function createSharedTaskCopies(){
+  const label = document.getElementById('sharedTaskName').value.trim();
+  const due_date = document.getElementById('sharedTaskDue').value || null;
+  const respRaw = document.getElementById('sharedTaskResponsible').value;
+  const [respName, respEmail] = respRaw ? respRaw.split('|') : [null, null];
+  const checked = Array.from(document.querySelectorAll('.sharedTaskUnitCheck:checked')).map(c=>c.value);
+  if(!label){ alert('Enter a task name'); return; }
+  if(!checked.length){ alert('Select at least one area/team to copy this task to'); return; }
+  const rows = checked.map(unitId => ({
+    event_id: adminActiveEventId, area_id: unitId, label, due_date,
+    responsible_person_name: respName || null, responsible_person_email: respEmail || null, sort_order: 0
+  }));
+  await sb.from('checklist_item').insert(rows);
+  alert(`Task copied to ${checked.length} ${checked.length===1 ? 'area/team' : 'areas/teams'}.`);
+  document.getElementById('sharedTaskName').value = '';
+  await renderSharedTasksTab();
+}
+
+// ---------- Overview tab ----------
 async function renderAdminOverview(){
-  const el = document.getElementById('adminTabContent');
-  if(!adminActiveEventId){
-    el.innerHTML = '<p class="muted">Select an event in the Setup tab first.</p>';
-    return;
-  }
+  const el = document.getElementById('eventSubTabContent');
+  if(!adminActiveEventId){ el.innerHTML = '<p class="muted">Select an event first.</p>'; return; }
 
   const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
   const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).order('sort_order');
@@ -862,8 +921,7 @@ async function renderAdminOverview(){
   const statusMap = {};
   (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
 
-  let totalPctSum = 0;
-  let overdueCount = 0;
+  let totalPctSum = 0, overdueCount = 0;
   const assignedCount = (areas||[]).filter(a => a.area_assignment && a.area_assignment.length).length;
 
   let rows = '';
@@ -871,16 +929,12 @@ async function renderAdminOverview(){
     const inc = a.area_assignment && a.area_assignment[0] ? a.area_assignment[0].incharge_name : '—';
     const applicableItems = (items||[]).filter(it => !it.area_id || it.area_id === a.id);
     let score = 0;
-    rows += `<tr><td class="name">${a.area_name}</td><td>${inc}</td>`;
+    rows += `<tr><td class="name">${a.area_name} <span class="tag-badge">${a.unit_type}</span></td><td>${inc}</td>`;
     (items||[]).forEach(it => {
-      if(it.area_id && it.area_id !== a.id){
-        rows += `<td><span class="chip na">—</span></td>`;
-        return;
-      }
+      if(it.area_id && it.area_id !== a.id){ rows += `<td><span class="chip na">—</span></td>`; return; }
       const s = statusMap[`${a.id}_${it.id}`];
       const st = s ? s.status : 'Not Done';
-      if(st === 'Done') score += 1;
-      else if(st === 'Partial') score += 0.5;
+      if(st === 'Done') score += 1; else if(st === 'Partial') score += 0.5;
       if(it.due_date && st !== 'Done' && it.due_date < todayStr()) overdueCount++;
       const chipClass = st === 'Done' ? 'done' : (st === 'Partial' ? 'partial' : 'notdone');
       const symbol = st === 'Done' ? '✓' : (st === 'Partial' ? '~' : '·');
@@ -893,23 +947,22 @@ async function renderAdminOverview(){
 
   const overallPct = (areas && areas.length) ? Math.round(totalPctSum / areas.length) : 0;
 
-  let html = `
+  el.innerHTML = `
     <div class="kpi-row">
-      <div class="kpi-card purple"><div class="kpi-icon">🏛️</div><div class="kpi-value">${(areas||[]).length}</div><div class="kpi-label">Areas</div></div>
+      <div class="kpi-card purple"><div class="kpi-icon">🏛️</div><div class="kpi-value">${(areas||[]).length}</div><div class="kpi-label">Areas + Teams</div></div>
       <div class="kpi-card blue"><div class="kpi-icon">👤</div><div class="kpi-value">${assignedCount}/${(areas||[]).length}</div><div class="kpi-label">Incharges Assigned</div></div>
       <div class="kpi-card green"><div class="kpi-icon">📈</div><div class="kpi-value">${overallPct}%</div><div class="kpi-label">Overall Completion</div></div>
       <div class="kpi-card red"><div class="kpi-icon">⏰</div><div class="kpi-value">${overdueCount}</div><div class="kpi-label">Overdue Items</div></div>
     </div>
     <div class="card">
-      <h2>Area Progress</h2>
-      <div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area</th><th>Incharge</th>
-      ${(items||[]).map((it,i)=>`<th title="${it.label}${it.area_id ? ' (area-specific)' : ''}${it.due_date ? ' — due ' + it.due_date : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`).join('')}
+      <h2>Progress</h2>
+      <div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area / Team</th><th>Incharge</th>
+      ${(items||[]).map((it,i)=>`<th title="${it.label}${it.area_id ? ' (specific)' : ''}${it.due_date ? ' — due ' + it.due_date : ''}${it.responsible_person_name ? ' — resp: ' + it.responsible_person_name : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`).join('')}
       <th>%</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="muted" style="margin-top:10px;">✓ Done · ~ Partial · · Not Done · * = area-specific to-do (— means not applicable to that area)</p>
-      <p class="muted">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}${it.due_date ? ' (due ' + it.due_date + ')' : ''}`).join(' · ')}</p>
+      <p class="muted" style="margin-top:10px;">✓ Done · ~ Partial · · Not Done · * = specific to-do (— means not applicable there)</p>
+      <p class="muted">Checklist items: ${(items||[]).map((it,i)=>`#${i+1} ${it.label}${it.due_date ? ' (due ' + it.due_date + ')' : ''}${it.responsible_person_name ? ' [' + it.responsible_person_name + ']' : ''}`).join(' · ')}</p>
     </div>
   `;
-  el.innerHTML = html;
 }
 
 // ---------- INIT ----------
