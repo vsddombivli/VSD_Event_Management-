@@ -141,14 +141,14 @@
 </div>
 
 <script>
-	const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
+const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { db: { schema: 'vsd' } });
 
 // Cloudinary — used for photo/video uploads and for the Excel archive backup.
 // Cloudinary → Settings → Upload → Add upload preset → Signing Mode: Unsigned.
-const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUDINARY_CLOUD_NAME";
-const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_UPLOAD_PRESET";
+const CLOUDINARY_CLOUD_NAME = "ixycuksb";
+const CLOUDINARY_UPLOAD_PRESET = "akuctgnj";
 
 async function uploadToCloudinary(fileOrBlob, resourceType, folder){
   resourceType = resourceType || 'auto'; // 'image' | 'video' | 'raw' | 'auto'
