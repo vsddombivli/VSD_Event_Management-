@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>VSD Event Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -140,9 +141,28 @@
 </div>
 
 <script>
-const SUPABASE_URL = "https://npaikbbvarcsxykmogeo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYWlrYmJ2YXJjc3h5a21vZ2VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTcxNzIsImV4cCI6MjA5OTkzMzE3Mn0.zwIfRfHttsYmATkl751GWa1VJE2qUgN5Jxq53tNYSpM";
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { db: { schema: 'vsd' } });
+
+// Cloudinary — used for photo/video uploads and for the Excel archive backup.
+// Cloudinary → Settings → Upload → Add upload preset → Signing Mode: Unsigned.
+const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUDINARY_CLOUD_NAME";
+const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_UPLOAD_PRESET";
+
+async function uploadToCloudinary(fileOrBlob, resourceType, folder){
+  resourceType = resourceType || 'auto'; // 'image' | 'video' | 'raw' | 'auto'
+  const formData = new FormData();
+  formData.append('file', fileOrBlob);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  if(folder) formData.append('folder', folder);
+  const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
+    method: 'POST', body: formData
+  });
+  const data = await resp.json();
+  if(!resp.ok){ throw new Error((data && data.error && data.error.message) || 'Cloudinary upload failed'); }
+  return data.secure_url;
+}
 
 let currentUser = null;
 let isAdmin = false;
@@ -152,6 +172,62 @@ let peopleDirectory = [];   // global vsd.person cache, for name autocomplete
 let modalPeopleList = [];   // this event's incharge+member names, for responsible-person dropdowns
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+// ---------- ROBUSTNESS HELPERS ----------
+// Retries a Supabase call a few times with backoff — protects field saves
+// made over weak temple/venue wifi from silently failing on the first try.
+async function withRetry(fn, attempts){
+  attempts = attempts || 3;
+  let lastErr;
+  for(let i = 0; i < attempts; i++){
+    try {
+      const result = await fn();
+      if(result && result.error){ lastErr = result.error; }
+      else return result;
+    } catch(e){ lastErr = e; }
+    await new Promise(r => setTimeout(r, 600 * (i + 1)));
+  }
+  throw lastErr;
+}
+
+// Downscales + compresses a photo client-side before upload (phone camera
+// photos can be 5-10MB; this keeps uploads fast on weak connections).
+function compressImage(file, maxDim, quality){
+  maxDim = maxDim || 1280; quality = quality || 0.72;
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.onerror = () => resolve(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if(width > maxDim || height > maxDim){
+        if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
+    };
+    img.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// CSV export — client-side, no server round trip needed.
+function downloadCsv(filename, rows){
+  const csv = rows.map(r => r.map(cell => {
+    const s = String(cell ?? '');
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 // ---------- VISUAL HELPERS ----------
 function bandColor(pct){
@@ -260,7 +336,38 @@ async function onLoggedIn(user){
   document.getElementById('whoami').textContent = user.email;
   const { data: adminRow } = await sb.from('admins').select('email').eq('email', user.email).maybeSingle();
   isAdmin = !!adminRow;
-  if(isAdmin){ renderAdmin(); } else { renderIncharge(); }
+  if(isAdmin){ renderAdmin(); return; }
+  const { data: viewerRow } = await sb.from('viewer').select('email').eq('email', user.email).maybeSingle();
+  if(viewerRow){ renderViewer(); return; }
+  renderIncharge();
+}
+
+// ============================================================
+// VIEWER (read-only) — e.g. trustees checking progress without edit access
+// ============================================================
+async function renderViewer(){
+  const main = document.getElementById('mainContent');
+  const { data: events } = await sb.from('event').select('*').order('created_at', { ascending: false });
+  main.innerHTML = `
+    <div class="card">
+      <h2>👁️ Viewer <span class="tag-badge">read only</span></h2>
+      <label>Select event</label>
+      <select id="viewerEventSelect" onchange="onViewerEventSelect(this.value)">
+        <option value="">-- choose event --</option>
+        ${(events||[]).map(e => `<option value="${e.id}">${e.name} (${e.event_date})</option>`).join('')}
+      </select>
+    </div>
+    <div id="viewerContent"></div>
+  `;
+  if(events && events.length){
+    adminActiveEventId = events[0].id;
+    document.getElementById('viewerEventSelect').value = events[0].id;
+    await renderAdminOverview('viewerContent');
+  }
+}
+async function onViewerEventSelect(eventId){
+  adminActiveEventId = eventId || null;
+  await renderAdminOverview('viewerContent');
 }
 
 // ============================================================
@@ -345,17 +452,20 @@ async function saveChecklistItem(areaId, itemId){
   const comment = document.getElementById(`comment-${areaId}-${itemId}`).value;
   const fileInput = document.getElementById(`file-${areaId}-${itemId}`);
   let photo_url = null;
-  if(fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    const path = `${areaId}/${itemId}-${Date.now()}-${file.name}`;
-    const { error: upErr } = await sb.storage.from('event-photos').upload(path, file);
-    if(!upErr){ const { data: pub } = sb.storage.from('event-photos').getPublicUrl(path); photo_url = pub.publicUrl; }
+  try {
+    if(fileInput.files && fileInput.files[0]){
+      const compressed = await compressImage(fileInput.files[0]);
+      photo_url = await withRetry(() => uploadToCloudinary(compressed, 'image', `vsd-events/${areaId}`));
+    }
+    const updatePayload = { area_id: areaId, checklist_item_id: itemId, status, comment, updated_by: currentUser.email, updated_at: new Date().toISOString() };
+    if(photo_url) updatePayload.photo_url = photo_url;
+    await withRetry(() => sb.from('area_checklist_status').upsert(updatePayload, { onConflict: 'area_id,checklist_item_id' }));
+    const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
+    await loadChecklistForArea(areaId, areaRow.event_id);
+  } catch(e){
+    console.error('Save failed after retries:', e);
+    alert('Could not save — check your connection and try again. Nothing was lost from this screen, just tap Save once more.');
   }
-  const updatePayload = { area_id: areaId, checklist_item_id: itemId, status, comment, updated_by: currentUser.email, updated_at: new Date().toISOString() };
-  if(photo_url) updatePayload.photo_url = photo_url;
-  await sb.from('area_checklist_status').upsert(updatePayload, { onConflict: 'area_id,checklist_item_id' });
-  const { data: areaRow } = await sb.from('area').select('event_id').eq('id', areaId).single();
-  await loadChecklistForArea(areaId, areaRow.event_id);
 }
 
 // ============================================================
@@ -396,8 +506,207 @@ function renderSetupTop(){
       <input type="date" id="newEventDate" />
       <button class="btn" onclick="createNewEvent()">Create event (with default checklist)</button>
     </div>
+    <div class="card">
+      <h2>📥 Copy an archived event</h2>
+      <p class="muted">Download an archived event's Excel file below, edit it if you like (add/remove areas, change names), then upload it here to create a new event pre-filled with that structure. Statuses/comments/photos are not carried over — this starts fresh.</p>
+      <label>Excel file</label>
+      <input type="file" id="importExcelFile" accept=".xlsx" onchange="handleExcelFileSelected(this)" />
+      <div id="importPreview" class="hidden">
+        <label>New event name</label>
+        <input type="text" id="importEventName" />
+        <label>New event date</label>
+        <input type="date" id="importEventDate" />
+        <button class="btn" onclick="createEventFromImport()">Create event from file</button>
+      </div>
+    </div>
     <p class="muted">Once created, switch to the <b>Event</b> tab to select it and manage Areas, Teams, and to-dos.</p>
+    <div class="section-heading"><h2>📚 Past events</h2><span class="muted">for reference when planning something similar</span></div>
+    <div id="pastEventsList"><p class="muted">Loading...</p></div>
   `;
+  renderPastEventsList();
+}
+
+async function renderPastEventsList(){
+  const el = document.getElementById('pastEventsList');
+  const { data: events } = await sb.from('event').select('*')
+    .in('status', ['Completed','Archived']).order('event_date', { ascending: false });
+  if(!events || !events.length){
+    el.innerHTML = '<p class="muted">No completed or archived events yet.</p>';
+    return;
+  }
+  el.innerHTML = events.map(e => `
+    <div class="card">
+      <h2>${e.name} <span class="tag-badge">${e.status}</span></h2>
+      <div class="meta">${e.event_date}</div>
+      ${e.notes ? `<p style="font-size:13px;white-space:pre-wrap;">${e.notes.replace(/</g,'&lt;')}</p>` : '<p class="muted">No notes saved.</p>'}
+      <div class="row" style="margin-top:8px;">
+        ${e.drive_link ? `<a href="${e.drive_link}" target="_blank" rel="noopener" class="btn small secondary">📷 Photos/videos</a>` : ''}
+        ${e.archive_excel_url ? `
+          <a href="${e.archive_excel_url}" target="_blank" rel="noopener" class="btn small secondary">📊 Download Excel</a>
+        ` : e.status === 'Completed' ? `
+          <button class="btn small danger" onclick="openArchiveConfirm('${e.id}')">🗄️ Archive &amp; free up space</button>
+        ` : ''}
+        ${!e.archive_excel_url ? `<button class="btn small secondary" onclick="jumpToEvent('${e.id}')">Open in Event tab</button>` : ''}
+      </div>
+      ${e.archive_excel_url ? '<p class="muted" style="margin-top:6px;">Detail data removed from the database — only this record and the Excel backup remain.</p>' : ''}
+    </div>
+  `).join('');
+}
+
+async function jumpToEvent(eventId){
+  adminActiveEventId = eventId;
+  await showTopTab('event');
+}
+
+function openArchiveConfirm(eventId){
+  adminActiveEventId = eventId;
+  archiveAndExportEvent();
+}
+
+// ============================================================
+// EXCEL ARCHIVE + IMPORT ("copy an event")
+// ============================================================
+async function buildEventWorkbook(eventId){
+  const { data: ev } = await sb.from('event').select('*').eq('id', eventId).single();
+  const { data: areas } = await sb.from('area').select('*').eq('event_id', eventId).order('sort_order');
+  const areaIds = (areas||[]).map(a=>a.id);
+  const safeIds = areaIds.length ? areaIds : ['00000000-0000-0000-0000-000000000000'];
+  const { data: assignments } = await sb.from('area_assignment').select('*').in('area_id', safeIds);
+  const { data: members } = await sb.from('unit_member').select('*').in('area_id', safeIds);
+  const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', eventId).order('sort_order');
+  const { data: statuses } = await sb.from('area_checklist_status').select('*').in('area_id', safeIds);
+
+  const areaNameById = {}; (areas||[]).forEach(a => areaNameById[a.id] = a.area_name);
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{
+    name: ev.name, event_date: ev.event_date, status: ev.status, notes: ev.notes || '', drive_link: ev.drive_link || ''
+  }]), 'Event');
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((areas||[]).map(a => ({
+    unit_type: a.unit_type, area_name: a.area_name, details: a.temple_list || '', sort_order: a.sort_order
+  }))), 'Areas');
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((assignments||[]).map(a => ({
+    area_name: areaNameById[a.area_id] || '', incharge_name: a.incharge_name, incharge_mobile: a.incharge_mobile || '', incharge_email: a.incharge_email
+  }))), 'Incharges');
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((members||[]).map(m => ({
+    area_name: areaNameById[m.area_id] || '', member_name: m.member_name, mobile: m.mobile || '', email: m.email || ''
+  }))), 'Members');
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((items||[]).map(it => ({
+    area_name: it.area_id ? (areaNameById[it.area_id] || '') : '(shared - all areas)',
+    label: it.label, due_date: it.due_date || '', responsible_person_name: it.responsible_person_name || '',
+    responsible_person_email: it.responsible_person_email || '', sort_order: it.sort_order
+  }))), 'Checklist');
+
+  const statusMap = {}; (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
+  const statusRows = (items||[]).flatMap(it => {
+    const applicableAreas = it.area_id ? [it.area_id] : areaIds;
+    return applicableAreas.map(aid => {
+      const s = statusMap[`${aid}_${it.id}`];
+      return {
+        area_name: areaNameById[aid] || '', task: it.label, status: s ? s.status : 'Not Done',
+        comment: s ? (s.comment || '') : '', photo_url: s ? (s.photo_url || '') : '',
+        updated_by: s ? (s.updated_by || '') : '', updated_at: s ? (s.updated_at || '') : ''
+      };
+    });
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(statusRows), 'Status Report');
+
+  return wb;
+}
+
+async function archiveAndExportEvent(){
+  if(!confirm('This generates an Excel backup, uploads it to Cloudinary, then PERMANENTLY DELETES all areas, teams, incharges, members, and checklist data for this event from the database — only the event record and the Excel link will remain. This cannot be undone. Continue?')) return;
+
+  try {
+    const wb = await buildEventWorkbook(adminActiveEventId);
+    const wbArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const { data: ev } = await sb.from('event').select('name,event_date').eq('id', adminActiveEventId).single();
+    const filename = `${(ev.name||'event').replace(/[^a-z0-9]/gi,'_')}_${ev.event_date}.xlsx`;
+    const excelFile = new File([wbArray], filename, { type: 'application/octet-stream' });
+
+    const excelUrl = await withRetry(() => uploadToCloudinary(excelFile, 'raw', 'vsd-events/archives'));
+
+    await sb.from('checklist_item').delete().eq('event_id', adminActiveEventId);
+    await sb.from('area').delete().eq('event_id', adminActiveEventId);
+    await sb.from('event').update({ status: 'Archived', archive_excel_url: excelUrl }).eq('id', adminActiveEventId);
+
+    alert('Event archived. Excel backup uploaded — detail data has been removed from the database.');
+    adminActiveEventId = null;
+    await showTopTab('setup');
+  } catch(e){
+    console.error(e);
+    alert('Archiving failed: ' + (e.message || e) + '\n\nNothing was deleted — safe to try again.');
+  }
+}
+
+let importedWorkbook = null;
+
+async function handleExcelFileSelected(input){
+  const file = input.files[0];
+  if(!file) return;
+  const buf = await file.arrayBuffer();
+  importedWorkbook = XLSX.read(buf, { type: 'array' });
+  const eventRows = importedWorkbook.Sheets['Event'] ? XLSX.utils.sheet_to_json(importedWorkbook.Sheets['Event']) : [];
+  const evRow = eventRows[0] || {};
+  document.getElementById('importEventName').value = (evRow.name || file.name.replace(/\.xlsx$/i,'')) + ' (copy)';
+  document.getElementById('importEventDate').value = '';
+  document.getElementById('importPreview').classList.remove('hidden');
+}
+
+async function createEventFromImport(){
+  if(!importedWorkbook){ alert('Choose an Excel file first'); return; }
+  const name = document.getElementById('importEventName').value.trim();
+  const date = document.getElementById('importEventDate').value;
+  if(!name || !date){ alert('Enter a new event name and date'); return; }
+
+  const { data: ev, error } = await sb.from('event').insert({ name, event_date: date }).select().single();
+  if(error){ alert(error.message); return; }
+
+  const norm = s => String(s || '').trim().toLowerCase();
+  const nameToNewId = {};
+
+  const areasRows = importedWorkbook.Sheets['Areas'] ? XLSX.utils.sheet_to_json(importedWorkbook.Sheets['Areas']) : [];
+  for(const row of areasRows){
+    if(!row.area_name) continue;
+    const { data: newArea, error: areaErr } = await sb.from('area').insert({
+      event_id: ev.id, unit_type: row.unit_type || 'Area', area_name: row.area_name,
+      temple_list: row.details || '', sort_order: row.sort_order || 0
+    }).select().single();
+    if(!areaErr) nameToNewId[norm(row.area_name)] = newArea.id;
+  }
+
+  const incRows = importedWorkbook.Sheets['Incharges'] ? XLSX.utils.sheet_to_json(importedWorkbook.Sheets['Incharges']) : [];
+  const incInsertRows = incRows.filter(r => nameToNewId[norm(r.area_name)]).map(r => ({
+    area_id: nameToNewId[norm(r.area_name)], incharge_name: r.incharge_name, incharge_mobile: r.incharge_mobile || null, incharge_email: r.incharge_email
+  }));
+  if(incInsertRows.length) await sb.from('area_assignment').insert(incInsertRows);
+
+  const memberRows = importedWorkbook.Sheets['Members'] ? XLSX.utils.sheet_to_json(importedWorkbook.Sheets['Members']) : [];
+  const memberInsertRows = memberRows.filter(r => nameToNewId[norm(r.area_name)]).map(r => ({
+    area_id: nameToNewId[norm(r.area_name)], member_name: r.member_name, mobile: r.mobile || null, email: r.email || null
+  }));
+  if(memberInsertRows.length) await sb.from('unit_member').insert(memberInsertRows);
+
+  const itemRows = importedWorkbook.Sheets['Checklist'] ? XLSX.utils.sheet_to_json(importedWorkbook.Sheets['Checklist']) : [];
+  const itemInsertRows = itemRows.filter(r => r.label).map(r => {
+    const isShared = !r.area_name || norm(r.area_name) === '(shared - all areas)';
+    return {
+      event_id: ev.id, area_id: isShared ? null : (nameToNewId[norm(r.area_name)] || null),
+      label: r.label, due_date: r.due_date || null,
+      responsible_person_name: r.responsible_person_name || null, responsible_person_email: r.responsible_person_email || null,
+      sort_order: r.sort_order || 0
+    };
+  });
+  if(itemInsertRows.length) await sb.from('checklist_item').insert(itemInsertRows);
+
+  alert('New event created from the uploaded Excel file. Statuses, comments, and photos were not copied — this starts fresh.');
+  importedWorkbook = null;
+  adminActiveEventId = ev.id;
+  await showTopTab('event');
 }
 
 async function createNewEvent(){
@@ -422,19 +731,55 @@ async function createNewEvent(){
   await showTopTab('event');
 }
 
+let showArchivedEvents = false;
+
 async function renderEventTab(){
   const el = document.getElementById('topTabContent');
-  const { data: events } = await sb.from('event').select('*').order('created_at', { ascending: false });
-  if(!adminActiveEventId && events && events.length) adminActiveEventId = events[0].id;
+  const { data: allEvents } = await sb.from('event').select('*').order('created_at', { ascending: false });
+  const events = showArchivedEvents ? (allEvents||[]) : (allEvents||[]).filter(e => e.status !== 'Archived');
+  if(!adminActiveEventId && events.length) adminActiveEventId = events[0].id;
+  const activeEvent = (allEvents||[]).find(e => e.id === adminActiveEventId);
 
   el.innerHTML = `
     <div class="card">
       <h2>🎯 Select event</h2>
       <select id="eventSelect" onchange="onEventSelect(this.value)">
         <option value="">-- choose event --</option>
-        ${(events||[]).map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})</option>`).join('')}
+        ${events.map(e => `<option value="${e.id}" ${e.id === adminActiveEventId ? 'selected' : ''}>${e.name} (${e.event_date})${e.status !== 'Active' ? ' · ' + e.status : ''}</option>`).join('')}
       </select>
+      <label class="checkbox-row" style="margin-top:10px;">
+        <input type="checkbox" id="showArchivedToggle" ${showArchivedEvents ? 'checked' : ''} onchange="toggleShowArchived(this.checked)">
+        Show archived/completed events
+      </label>
+      ${activeEvent ? `
+        <label>Event status</label>
+        <select id="eventStatusSelect" onchange="updateEventStatus(this.value)">
+          <option value="Draft" ${activeEvent.status==='Draft'?'selected':''}>Draft</option>
+          <option value="Active" ${activeEvent.status==='Active'?'selected':''}>Active</option>
+          <option value="Completed" ${activeEvent.status==='Completed'?'selected':''}>Completed</option>
+          <option value="Archived" ${activeEvent.status==='Archived'?'selected':''}>Archived</option>
+        </select>
+      ` : ''}
     </div>
+    ${activeEvent ? `
+      <div class="card">
+        <h2>📝 Notes &amp; Reference <span class="tag-badge">for planning similar events later</span></h2>
+        <label>Retrospective notes</label>
+        <textarea id="eventNotes" placeholder="e.g. quantities used, vendor contacts, what worked, what to change next time">${activeEvent.notes || ''}</textarea>
+        <label>Google Drive link (photos / videos)</label>
+        <input type="text" id="eventDriveLink" value="${(activeEvent.drive_link || '').replace(/"/g,'&quot;')}" placeholder="https://drive.google.com/..." />
+        <button class="btn small" onclick="saveEventNotes()">Save notes</button>
+        ${activeEvent.drive_link ? `<div style="margin-top:10px;"><a href="${activeEvent.drive_link}" target="_blank" rel="noopener" class="btn small secondary">📷 Open Drive folder</a></div>` : ''}
+        ${activeEvent.archive_excel_url ? `
+          <div class="edit-form"><p class="muted">This event is archived — detail data has been removed from the database.</p>
+          <a href="${activeEvent.archive_excel_url}" target="_blank" rel="noopener" class="btn small secondary">📊 Download Excel backup</a></div>
+        ` : `
+          <div class="edit-form">
+            <button class="btn small danger" onclick="archiveAndExportEvent()">🗄️ Archive &amp; free up space (Excel backup + delete detail data)</button>
+          </div>
+        `}
+      </div>
+    ` : ''}
     <div id="eventSubArea"></div>
   `;
 
@@ -455,6 +800,23 @@ async function renderEventTab(){
   }
 }
 
+function toggleShowArchived(checked){
+  showArchivedEvents = checked;
+  renderEventTab();
+}
+
+async function updateEventStatus(status){
+  await sb.from('event').update({ status }).eq('id', adminActiveEventId);
+  await renderEventTab();
+}
+
+async function saveEventNotes(){
+  const notes = document.getElementById('eventNotes').value.trim();
+  const drive_link = document.getElementById('eventDriveLink').value.trim();
+  await sb.from('event').update({ notes, drive_link }).eq('id', adminActiveEventId);
+  await renderEventTab();
+}
+
 async function onEventSelect(eventId){
   adminActiveEventId = eventId || null;
   closeAreaModal();
@@ -470,7 +832,7 @@ async function showEventSubTab(tab){
   if(tab === 'area') await renderUnitTab('Area');
   else if(tab === 'team') await renderUnitTab('Team');
   else if(tab === 'shared') await renderSharedTasksTab();
-  else if(tab === 'overview') await renderAdminOverview();
+  else if(tab === 'overview') await renderAdminOverview('eventSubTabContent');
 }
 
 // ---------- Area / Team tab ----------
@@ -497,7 +859,14 @@ async function createUnit(unitType){
   const area_name = document.getElementById('newUnitName').value.trim();
   const temple_list = document.getElementById('newUnitDetails').value.trim();
   if(!area_name){ alert(`Enter ${unitType.toLowerCase()} name`); return; }
+  const { data: existing } = await sb.from('area').select('id')
+    .eq('event_id', adminActiveEventId).eq('unit_type', unitType).ilike('area_name', area_name);
+  if(existing && existing.length){
+    if(!confirm(`A ${unitType.toLowerCase()} named "${area_name}" already exists for this event. Add another one with the same name anyway?`)) return;
+  }
   await sb.from('area').insert({ event_id: adminActiveEventId, area_name, temple_list, unit_type: unitType });
+  document.getElementById('newUnitName').value = '';
+  document.getElementById('newUnitDetails').value = '';
   await renderUnitGrid(unitType);
 }
 
@@ -837,8 +1206,15 @@ async function saveAssignmentEdit(areaId, assignmentId){
 async function sendAssignmentEmail(areaAssignmentId, silent){
   const { data, error } = await sb.functions.invoke('send-notification', { body: { type: 'TEAM_ASSIGNMENT', area_assignment_id: areaAssignmentId } });
   if(error){
-    console.error('Email send failed', error);
-    if(!silent) alert('Assignment saved, but the email failed to send. Check the Edge Function logs / Resend setup.');
+    let detail = error.message || String(error);
+    try {
+      if(error.context && typeof error.context.json === 'function'){
+        const body = await error.context.json();
+        detail = (body && (body.error || body.details)) ? JSON.stringify(body) : detail;
+      }
+    } catch(e){ /* ignore parse failure, fall back to detail above */ }
+    console.error('Email send failed:', detail);
+    if(!silent) alert('Assignment saved, but the email failed to send:\n\n' + detail);
   } else if(!silent){ alert('Assignment email sent.'); }
   return { data, error };
 }
@@ -910,8 +1286,36 @@ async function createSharedTaskCopies(){
 }
 
 // ---------- Overview tab ----------
-async function renderAdminOverview(){
-  const el = document.getElementById('eventSubTabContent');
+async function exportOverviewCsv(){
+  const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
+  const { data: items } = await sb.from('checklist_item').select('*').eq('event_id', adminActiveEventId).order('sort_order');
+  const { data: statuses } = await sb.from('area_checklist_status').select('*').in('area_id', (areas||[]).map(a=>a.id));
+  const statusMap = {};
+  (statuses||[]).forEach(s => statusMap[`${s.area_id}_${s.checklist_item_id}`] = s);
+
+  const rows = [['Area/Team','Type','Incharge','Incharge Email','Task','Due Date','Responsible','Status','Comment']];
+  (areas||[]).forEach(a => {
+    const inc = a.area_assignment && a.area_assignment[0];
+    const applicable = (items||[]).filter(it => !it.area_id || it.area_id === a.id);
+    if(!applicable.length){
+      rows.push([a.area_name, a.unit_type, inc?inc.incharge_name:'', inc?inc.incharge_email:'', '', '', '', '', '']);
+    }
+    applicable.forEach(it => {
+      const s = statusMap[`${a.id}_${it.id}`];
+      rows.push([
+        a.area_name, a.unit_type, inc?inc.incharge_name:'', inc?inc.incharge_email:'',
+        it.label, it.due_date||'', it.responsible_person_name||'', s?s.status:'Not Done', s?(s.comment||''):''
+      ]);
+    });
+  });
+
+  const { data: ev } = await sb.from('event').select('name,event_date').eq('id', adminActiveEventId).single();
+  const filename = `${(ev?.name||'event').replace(/[^a-z0-9]/gi,'_')}_${ev?.event_date||todayStr()}.csv`;
+  downloadCsv(filename, rows);
+}
+
+async function renderAdminOverview(targetId){
+  const el = document.getElementById(targetId || 'eventSubTabContent');
   if(!adminActiveEventId){ el.innerHTML = '<p class="muted">Select an event first.</p>'; return; }
 
   const { data: areas } = await sb.from('area').select('*, area_assignment(*)').eq('event_id', adminActiveEventId).order('sort_order');
@@ -955,7 +1359,10 @@ async function renderAdminOverview(){
       <div class="kpi-card red"><div class="kpi-icon">⏰</div><div class="kpi-value">${overdueCount}</div><div class="kpi-label">Overdue Items</div></div>
     </div>
     <div class="card">
-      <h2>Progress</h2>
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">Progress</h2>
+        <button class="btn small secondary" onclick="exportOverviewCsv()">⬇️ Export CSV</button>
+      </div>
       <div style="overflow-x:auto;"><table class="grid-table"><thead><tr><th>Area / Team</th><th>Incharge</th>
       ${(items||[]).map((it,i)=>`<th title="${it.label}${it.area_id ? ' (specific)' : ''}${it.due_date ? ' — due ' + it.due_date : ''}${it.responsible_person_name ? ' — resp: ' + it.responsible_person_name : ''}">#${i+1}${it.area_id ? '*' : ''}</th>`).join('')}
       <th>%</th></tr></thead><tbody>${rows}</tbody></table></div>
